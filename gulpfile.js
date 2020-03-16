@@ -17,6 +17,7 @@ function copy() {
     return gulp.src([
       'app/*.html',
       'app/**/*.jpg',
+      'app/**/*.svg',
     ])
     .pipe(gulp.dest('build'));
 }
