@@ -34,16 +34,15 @@ function serve() {
 
 function buildSw() {
     return workboxBuild.injectManifest({
-      swSrc: 'build/scripts/sw.min.js',
-      swDest: 'build/scripts/sw.imin.js',
+      swSrc: 'app/sw.js',
+      swDest: 'build/sw.min.js',
       globDirectory: 'build',
       globPatterns: [
-        '**\/*.css',
-        'index.html',
-        'js\/animation.js',
-        'images\/home\/*.jpg',
-        'images\/icon\/*.svg',
-      ]
+          '**',
+        ],
+      globIgnores: [
+        'sw.js'
+      ] 
     }).then(resources => {
       console.log(`Injected ${resources.count} resources for precaching, ` +
           `totaling ${resources.size} bytes.`);
@@ -53,7 +52,7 @@ function buildSw() {
   }
 
 function processJs() {
-    return gulp.src('app/scripts/*.js')
+    return gulp.src(['app/scripts/*.js'])
     .pipe(babel({
         presets: ['env']
     }))
