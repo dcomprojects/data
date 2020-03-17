@@ -18,6 +18,9 @@ function copy() {
       'app/*.html',
       'app/**/*.jpg',
       'app/**/*.svg',
+      'app/**/*.png',
+      'app/**/*.scss',
+      'app/webfonts/**',
     ])
     .pipe(gulp.dest('build'));
 }
@@ -52,35 +55,35 @@ function buildSw() {
   }
 
 function processJs() {
-    return gulp.src(['app/scripts/*.js'])
+    return gulp.src(['app/assets/js/*.js'])
     .pipe(babel({
         presets: ['env']
     }))
     .pipe(uglify())
-    .pipe(rename({
-        suffix: '.min'
-    }))
-    .pipe(gulp.dest('build/scripts'));
+    //.pipe(rename({
+    //    suffix: '.min'
+    //}))
+    .pipe(gulp.dest('build/assets/js'));
 }
 
 gulp.task('processJs', processJs);
 
 function watchJs() {
-    gulp.watch('app/scripts/*.js', processJs);
+    gulp.watch('app/assets/js/*.js', processJs);
 }
 
 function processCss() {
-    return gulp.src('app/styles/*.css')
+    return gulp.src('app/assets/css/*.css')
     .pipe(cleancss())
-    .pipe(rename({
-        suffix: '.min'
-    }))
-    .pipe(gulp.dest('build/styles'))
+    //.pipe(rename({
+    //    suffix: '.min'
+    //}))
+    .pipe(gulp.dest('build/assets/css/'))
 }
 
 gulp.task('processCss', processCss)
 function watchCss() {
-    gulp.watch('app/styles/*.css', processCss);
+    gulp.watch('app/assets/css/*.css', processCss);
 }
 
 function watch() {
