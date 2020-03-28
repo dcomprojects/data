@@ -25,6 +25,7 @@
     "workbox-build": "^3.6.3"
   },
   "dependencies": {
-    "core-js": "^3.6.4"
+    "core-js": "^3.6.4",
+    "gulp-cli": "^2.2.0"
   }
 }
