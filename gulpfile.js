@@ -24,6 +24,7 @@ function copy() {
       'app/**/*.png',
       'app/**/*.scss',
       'app/**/webfonts/*',
+      'app/**/d3/d3.js',
     ])
     .pipe(gulp.dest('build'));
 }
@@ -47,7 +48,7 @@ function buildSw() {
       '**',
     ],
     globIgnores: [
-      'sw.js'
+      'sw.js', '**/d3.js'
     ]
   }).then(resources => {
     console.log(`Injected ${resources.count} resources for precaching, ` +
