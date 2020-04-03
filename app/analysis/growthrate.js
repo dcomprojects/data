@@ -1,3 +1,6 @@
+let d3 = require("d3");
+let zzz = require("./blah");
+
 function getGrowthRate() {
     // load covid-19 dataset
     // get last 5 samples  
@@ -24,6 +27,8 @@ function getGrowthRate() {
             let samples = [];
             let prev = 0
             d.columns.slice(4).forEach(e => {
+
+                console.log(`${r[d.columns[0]]} ${e}=${r[e]}`)
                 let sample = r[e];
                 let delta = sample - prev
                 prev = sample
@@ -36,6 +41,9 @@ function getGrowthRate() {
 
         console.log(data);
     });
+
+    console.log(zzz);
+    zzz.buildSvg();
 }
 
 getGrowthRate();
