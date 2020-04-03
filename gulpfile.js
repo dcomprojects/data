@@ -1,13 +1,40 @@
 const gulp = require('gulp');
 const browserSync = require('browser-sync');
 const babel = require('gulp-babel');
-const uglify = require('gulp-uglify');
+const uglify = require('gulp-terser');
 const rename = require('gulp-rename');
 const cleancss = require('gulp-clean-css');
 const filter = require('gulp-filter');
 const del = require('del');
 
 const workboxBuild = require('workbox-build');
+
+
+const browserify = require('browserify');
+const source = require('vinyl-source-stream');
+const buffer = require('vinyl-buffer');
+const sourcemaps = require('gulp-sourcemaps');
+const log = require('gulplog');
+
+'use strict';
+
+function processAnalysis2() {
+  // set up the browserify instance on a task basis
+  var b = browserify({
+    entries: './app/analysis/growthrate.js',
+    debug: true
+  });
+
+  return b.bundle()
+    .pipe(source('app.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({loadMaps: true}))
+        // Add transformation tasks to the pipeline here.
+        .pipe(uglify())
+        .on('error', log.error)
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('./build/'));
+}
 
 // Clean "build" directory
 function clean() {
@@ -108,7 +135,8 @@ function watchJs() {
 }
 
 function watchAnalysis() {
-  gulp.watch('app/analysis/*.js', processAnalysis);
+  //gulp.watch('app/analysis/*.js', processAnalysis);
+  gulp.watch('app/analysis/*.js', processAnalysis2);
 }
 
 function watchHtml() {
@@ -145,7 +173,7 @@ gulp.task('buildAndServe', gulp.series(
   clean,
   copy,
   processJs,
-  processAnalysis,
+  processAnalysis2,
   processCss,
   buildSw,
   gulp.parallel(

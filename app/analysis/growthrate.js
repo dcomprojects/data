@@ -1,4 +1,4 @@
-export default function getGrowthRate() {
+function getGrowthRate() {
     // load covid-19 dataset
     // get last 5 samples  
     // 
@@ -37,3 +37,5 @@ export default function getGrowthRate() {
         console.log(data);
     });
 }
+
+getGrowthRate();
