@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<!--
+	Stellar by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+
+<head>
+	<title>Generic - Stellar by HTML5 UP</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<noscript>
+		<link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+</head>
+
+<body class="is-preload">
+
+	<!-- Wrapper -->
+	<div id="wrapper">
+
+		<!-- Header -->
+		<header id="header">
+			<h1>Map</h1>
+			<p>London</p>
+		</header>
+
+		<!-- Main -->
+		<div id="main">
+			<!-- <div id="mapid" style="width: 600px; height: 400px;"></div> -->
+		</div>
+		<!-- Footer -->
+		<footer id="footer">
+			<section>
+			</section>
+			<section>
+				<h2>Contact</h2>
+				<dl class="alt">
+					<dt>Address</dt>
+					<dd></dd>
+					<dt>Phone</dt>
+					<dd></dd>
+					<dt>Email</dt>
+					<dd><a href="#">info@dcomprojects.ca</a></dd>
+				</dl>
+				<ul class="icons">
+					<li><a href="#" class="icon brands fa-twitter alt"><span class="label">Twitter</span></a></li>
+					<li><a href="#" class="icon brands fa-facebook-f alt"><span class="label">Facebook</span></a></li>
+					<li><a href="#" class="icon brands fa-instagram alt"><span class="label">Instagram</span></a></li>
+					<li><a href="#" class="icon brands fa-github alt"><span class="label">GitHub</span></a></li>
+					<li><a href="#" class="icon brands fa-dribbble alt"><span class="label">Dribbble</span></a></li>
+				</ul>
+			</section>
+			<p class="copyright">&copy; Untitled. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+		</footer>
+
+	</div>
+
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/jquery.scrollex.min.js"></script>
+	<script src="assets/js/jquery.scrolly.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
+	<script src="d3/d3.js"></script>
+
+	<script>
+
+		width = 1000;
+		margin = ({
+			top: 20,
+			right: 20,
+			bottom: 30,
+			left: 40
+		});
+
+		data = d3.csv("data/unemployment-x.csv", ({
+			rate
+		}) => +rate).then(r => {
+
+			data = Object.assign(r, {
+				x: "Unemployment (%)",
+				y: "Counties"
+			});
+
+			x = d3.scaleLinear()
+				.domain(d3.extent(data)).nice()
+				.range([margin.left, width - margin.right]);
+
+			bins = d3.histogram()
+				.domain(x.domain())
+				.thresholds(x.ticks(40))
+				(data);
+
+			height = 500;
+			y = d3.scaleLinear()
+				.domain([0, d3.max(bins, d => d.length)]).nice()
+				.range([height - margin.bottom, margin.top])
+
+			xAxis = g => g
+				.attr("transform", `translate(0,${height - margin.bottom})`)
+				.call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0))
+				.call(g => g.append("text")
+					.attr("x", width - margin.right)
+					.attr("y", -4)
+					.attr("fill", "currentColor")
+					.attr("font-weight", "bold")
+					.attr("text-anchor", "end")
+					.text(data.x));
+
+			yAxis = g => g
+				.attr("transform", `translate(${margin.left},0)`)
+				.call(d3.axisLeft(y).ticks(height / 40))
+				.call(g => g.select(".domain").remove())
+				.call(g => g.select(".tick:last-of-type text").clone()
+					.attr("x", 4)
+					.attr("text-anchor", "start")
+					.attr("font-weight", "bold")
+					.text(data.y));
+
+			function blah() {
+
+				const svg = d3.create("svg")
+					.attr("viewBox", [0, 0, width, height]);
+
+				svg.append("g")
+					.attr("fill", "steelblue")
+					.selectAll("rect")
+					.data(bins)
+					.join("rect")
+					.attr("x", d => x(d.x0) + 1)
+					.attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+					.attr("y", d => y(d.length))
+					.attr("height", d => y(0) - y(d.length));
+
+				svg.append("g")
+					.call(xAxis);
+
+				svg.append("g")
+					.call(yAxis);
+
+				return svg.node();
+			}
+
+			d3.select("#main").append(() => blah());
+		});
+
+	</script>
+
+	<script type="module">
+		import getGrowthRate from "./analysis/growthrate.js";
+		getGrowthRate();
+
+	</script>
+
+</html>

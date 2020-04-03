@@ -25,6 +25,7 @@ function copy() {
       'app/**/*.scss',
       'app/**/webfonts/*',
       'app/**/d3/d3.js',
+      'app/**/data/*'
     ])
     .pipe(gulp.dest('build'));
 }
@@ -48,7 +49,7 @@ function buildSw() {
       '**',
     ],
     globIgnores: [
-      'sw.js', '**/d3.js'
+      'sw.js', '**/d3.js', '**/map.html', '**/learnd3.html'
     ]
   }).then(resources => {
     console.log(`Injected ${resources.count} resources for precaching, ` +
@@ -59,7 +60,9 @@ function buildSw() {
 }
 
 function processJs() {
-  return gulp.src(['app/assets/js/*.js'])
+  return gulp.src([
+    'app/assets/js/*.js',
+  ])
     //.pipe(babel({
     //  presets: ['env']
     //}))
@@ -70,10 +73,46 @@ function processJs() {
     .pipe(gulp.dest('build/assets/js'));
 }
 
+function processAnalysis() {
+  return gulp.src([
+    'app/analysis/*.js',
+  ])
+    //.pipe(babel({
+    //  presets: ['env']
+    //}))
+    //.pipe(uglify())
+    //.pipe(rename({
+    //    suffix: '.min'
+    //}))
+    .pipe(gulp.dest('build/analysis'));
+}
+
+
+function copyHtml() {
+  return gulp.src(['app/learnd3.html'])
+    //.pipe(babel({
+    //  presets: ['env']
+    //}))
+    //.pipe(uglify())
+    //.pipe(rename({
+    //    suffix: '.min'
+    //}))
+    .pipe(gulp.dest('build/'));
+}
+
+
 gulp.task('processJs', processJs);
 
 function watchJs() {
   gulp.watch('app/assets/js/*.js', processJs);
+}
+
+function watchAnalysis() {
+  gulp.watch('app/analysis/*.js', processAnalysis);
+}
+
+function watchHtml() {
+  gulp.watch('app/learnd3.html', copyHtml);
 }
 
 function processCss() {
@@ -106,7 +145,13 @@ gulp.task('buildAndServe', gulp.series(
   clean,
   copy,
   processJs,
+  processAnalysis,
   processCss,
   buildSw,
-  gulp.parallel(watchCss, watchJs, serve)
+  gulp.parallel(
+    watchCss, 
+    watchJs, 
+    watchAnalysis, 
+    watchHtml, 
+    serve)
 ));
