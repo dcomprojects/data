@@ -27,7 +27,7 @@ exports.barChart = function (data) {
 
     xAxis = g => g
         .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x).tickFormat(i => data[i].name).tickSizeOuter(0));
+        .call(d3.axisBottom(x).tickFormat(i =>  d3.timeFormat("%b %d")(data[i].name)).tickSizeOuter(0));
 
     yAxis = g => g
         .attr("transform", `translate(${margin.left},0)`)

@@ -23,6 +23,10 @@ function getGrowthRate() {
 
         let data = {};
 
+        let parseTime = d3.timeParse("%m/%d/%y");
+
+        let startDate = parseTime("3/10/20"); 
+
         d.forEach(r => {
 
             let samples = [];
@@ -31,10 +35,14 @@ function getGrowthRate() {
 
                 console.log(`${r[d.columns[0]]} ${e}=${r[e]}`)
                 let sample = +r[e];
-                let delta = sample - prev
-                prev = sample
+                let delta = sample - prev;
+                prev = sample;
 
-                samples.push({name: e, value: delta});
+                let date = parseTime(e); // Tue Jun 30 2015 00:00:00 GMT-0700 (PDT)
+
+                if (date > startDate) {
+                    samples.push({name: date, value: delta});
+                }
             });
 
             data[r[d.columns[0]]] = Object.assign(samples, {
