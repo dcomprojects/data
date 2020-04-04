@@ -1,5 +1,6 @@
 let d3 = require("d3");
-let zzz = require("./blah");
+//let zzz = require("./blah2");
+let bc = require("./barchart");
 
 function getGrowthRate() {
     // load covid-19 dataset
@@ -29,21 +30,24 @@ function getGrowthRate() {
             d.columns.slice(4).forEach(e => {
 
                 console.log(`${r[d.columns[0]]} ${e}=${r[e]}`)
-                let sample = r[e];
+                let sample = +r[e];
                 let delta = sample - prev
                 prev = sample
 
-                samples.push(delta);
+                samples.push({name: e, value: delta});
             });
 
-            data[r[d.columns[0]]] = samples;
+            data[r[d.columns[0]]] = Object.assign(samples, {
+                format: "%",
+                y: "Y label"
+            });
         });
 
-        console.log(data);
-    });
+        const key = "Newfoundland and Labrador";
+        let svg = bc.barChart(data[key]);
 
-    console.log(zzz);
-    zzz.buildSvg();
+        d3.select("#main").append(() => svg);
+    });
 }
 
 getGrowthRate();
