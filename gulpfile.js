@@ -36,6 +36,24 @@ function processAnalysis2() {
     .pipe(gulp.dest('./build/'));
 }
 
+function processAnalysis3() {
+  // set up the browserify instance on a task basis
+  var b = browserify({
+    entries: './app/analysis/usesdata.js',
+    debug: true
+  });
+
+  return b.bundle()
+    .pipe(source('datamodule.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({loadMaps: true}))
+        // Add transformation tasks to the pipeline here.
+        .pipe(uglify())
+        .on('error', log.error)
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('./build/'));
+}
+
 // Clean "build" directory
 function clean() {
   return del(['build/*'], {
@@ -76,7 +94,7 @@ function buildSw() {
       '**',
     ],
     globIgnores: [
-      'sw.js', '**/d3.js', '**/map.html', '**/learnd3.html'
+      'sw.js', '**/d3.js', '**/map.html', '**/learnd3.html', '**/data.html', 'datamodule.js'
     ]
   }).then(resources => {
     console.log(`Injected ${resources.count} resources for precaching, ` +
@@ -116,7 +134,7 @@ function processAnalysis() {
 
 
 function copyHtml() {
-  return gulp.src(['app/learnd3.html'])
+  return gulp.src(['app/*.html'])
     //.pipe(babel({
     //  presets: ['env']
     //}))
@@ -136,11 +154,11 @@ function watchJs() {
 
 function watchAnalysis() {
   //gulp.watch('app/analysis/*.js', processAnalysis);
-  gulp.watch('app/analysis/*.js', processAnalysis2);
+  gulp.watch('app/analysis/*.js', gulp.series(processAnalysis2, processAnalysis3));
 }
 
 function watchHtml() {
-  gulp.watch('app/learnd3.html', copyHtml);
+  gulp.watch('app/*.html', copyHtml);
 }
 
 function processCss() {
@@ -174,6 +192,7 @@ gulp.task('buildAndServe', gulp.series(
   copy,
   processJs,
   processAnalysis2,
+  processAnalysis3,
   processCss,
   buildSw,
   gulp.parallel(

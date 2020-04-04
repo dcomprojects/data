@@ -58,9 +58,7 @@ function getGrowthRate(countryFilter, regionKey) {
         let lon = 3;
 
         let data = {};
-
         let parseTime = d3.timeParse("%m/%d/%y");
-
         let startDate = parseTime("2/1/20"); 
 
         dataFrame.forEach(row => {
