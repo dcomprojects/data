@@ -1,20 +1,56 @@
 let d3 = require("d3");
-//let zzz = require("./blah2");
 let bc = require("./barchart");
 
-function getGrowthRate() {
-    // load covid-19 dataset
-    // get last 5 samples  
-    // 
-    //const url =  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
-    const url = "data/time_series_covid19_confirmed_global.csv";
+function getRollup(data) {
 
-    d3.csv(url, (d) => {
-        if (d["Country/Region"] === "Canada") {
-            return d;
+    totals = {};
+
+    const formatTime = d3.timeFormat("%m/%d/%y");
+    const parseTime = d3.timeParse("%m/%d/%y");
+
+    Object.keys(data).forEach(e => {
+
+        if (e !== "Recovered") {
+            console.log(e);
+            console.log(data[e]);
+            
+            data[e].forEach(o => {
+
+                key = formatTime(o.name);
+                if (!(key in totals)) {
+                    totals[key] = 0;
+                }
+                totals[key] += o.value;
+            });
         }
-        return null;
-    }).then((d) => {
+    });
+
+    ret = [];
+
+    Object.keys(totals).forEach(k => {
+        const formatTime = d3.timeFormat("%B %d, %Y");
+        ret.push({"name": parseTime(k), "value": totals[k]});
+    });
+
+    return ret; 
+}
+
+function getGrowthRate(countryFilter, regionKey) {
+    const url =  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+    //const url = "data/time_series_covid19_confirmed_global.csv";
+
+    d3.csv(url, (row) => {
+
+        if (typeof countryFilter === 'function') {
+            if (countryFilter(row)) {
+                return row;
+            } else {
+                return null;
+            }
+        }
+        return row;
+
+    }).then((dataFrame) => {
 
         let provinceIdx = 0;
         let countryIdx = 1;
@@ -25,37 +61,54 @@ function getGrowthRate() {
 
         let parseTime = d3.timeParse("%m/%d/%y");
 
-        let startDate = parseTime("3/10/20"); 
+        let startDate = parseTime("2/1/20"); 
 
-        d.forEach(r => {
+        dataFrame.forEach(row => {
 
             let samples = [];
             let prev = 0
-            d.columns.slice(4).forEach(e => {
+            dataFrame.columns.slice(4).forEach(e => {
 
-                console.log(`${r[d.columns[0]]} ${e}=${r[e]}`)
-                let sample = +r[e];
+                console.log(`${row[dataFrame.columns[0]]} ${e}=${row[e]}`)
+
+                let sample = +row[e];
                 let delta = sample - prev;
                 prev = sample;
 
-                let date = parseTime(e); // Tue Jun 30 2015 00:00:00 GMT-0700 (PDT)
-
+                let date = parseTime(e);
                 if (date > startDate) {
                     samples.push({name: date, value: delta});
                 }
             });
 
-            data[r[d.columns[0]]] = Object.assign(samples, {
+            data[row[dataFrame.columns[0]]] = Object.assign(samples, {
                 format: "%",
                 y: "Y label"
             });
         });
 
-        const key = "Newfoundland and Labrador";
-        let svg = bc.barChart(data[key]);
+        rollup = getRollup(data); 
+        Object.assign(rollup, {
+            y: "Totals"
+        });
 
+        console.log(rollup);
+        console.log(data[regionKey]);
+        let svg = bc.barChart(data[regionKey]);
+        //let svg = bc.barChart(rollup);
         d3.select("#main").append(() => svg);
     });
 }
 
-getGrowthRate();
+
+const countryFilter = r => {
+        if (r["Country/Region"] === "Canada") {
+            return r;
+        }
+        return null;
+};
+
+//const region = "Newfoundland and Labrador";
+const region = "Ontario";
+
+getGrowthRate(countryFilter, region);
