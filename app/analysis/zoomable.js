@@ -44,8 +44,12 @@ exports.zoomable = function (data) {
 
         function zoomed() {
             x.range([margin.left, width - margin.right].map(d => d3.event.transform.applyX(d)));
-            svg.selectAll(".bars rect").attr("x", d => x(d.name)).attr("width", x.bandwidth());
-            svg.selectAll(".x-axis").call(xAxis);
+            svg.selectAll(".bars rect")
+                .attr("x", d => x(d.name))
+                .attr("width", x.bandwidth());
+            svg.selectAll(".x-axis").call(xAxis)
+                .selectAll("text")
+                .style("font-size", (d3.event.transform.k*6)+"px");
         }
     }
 
@@ -68,7 +72,7 @@ exports.zoomable = function (data) {
         .attr("class", "x-axis")
         .call(xAxis)
         .selectAll("text")
-        .style("font-size", "5px")
+        .style("font-size", "10px")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
