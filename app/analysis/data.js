@@ -2,7 +2,8 @@ let d3 = require("d3");
 
 function load() {
 
-    const url = "data/time_series_covid19_confirmed_global.csv";
+    const url =  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
+    //const url = "data/time_series_covid19_confirmed_global.csv";
 
     return d3.csv(url)
         .then((dataFrame) => {
@@ -27,6 +28,10 @@ function load() {
 
                 let country = row[countryKey];
                 let province = row[provinceKey];
+
+                if (province === "Recovered") {
+                    return;
+                }
 
                 if (!(country in countries)) {
                     countries[country] = {
@@ -109,7 +114,25 @@ function load() {
             const getCountryCounts = () => {
                 return _data.countries;
             };
-            const getRegionCounts = () => {};
+
+            const getRegionCounts = (country) => {
+
+                ret = [];
+                c = countries[country];
+                Object.keys(c.regions).forEach(region => {
+                    ret.push({
+                        name: region,
+                        value: c.regions[region].count
+                    });
+                });
+
+                return Object.assign(ret, {
+                    format: "%",
+                    y: "Count"
+                });
+
+            };
+
             const getRegionSeries = () => {
 
             };

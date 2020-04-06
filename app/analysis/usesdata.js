@@ -5,5 +5,7 @@ let z = require("./zoomable");
 
 data.load().then(d => {
     let countryData = d.getCountryCounts();
-    d3.select("#main").append(() => z.zoomable(countryData));
+    let canadaData = d.getRegionCounts("Canada");
+    d3.select("#all").append(() => z.zoomable(countryData));
+    d3.select("#canada").append(() => z.zoomable(canadaData));
 });
