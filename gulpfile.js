@@ -187,15 +187,17 @@ function watch() {
 
 gulp.task('watch', watch);
 
-gulp.task('buildAndServe', gulp.series(
+gulp.task("build", gulp.series(
   clean,
   copy,
   processJs,
   processAnalysis2,
   processAnalysis3,
   processCss,
-  buildSw,
-  gulp.parallel(
+  buildSw
+));
+
+gulp.task('buildAndServe2', gulp.series("build", gulp.parallel(
     watchCss, 
     watchJs, 
     watchAnalysis, 
