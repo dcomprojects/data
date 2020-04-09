@@ -114,4 +114,6 @@ dist
 .yarn/build-state.yml
 .pnp.*
 
-build/
+!build/
+build/*
+!build/.placeholder
