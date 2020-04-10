@@ -2,7 +2,7 @@ let d3 = require("d3");
 
 function load() {
 
-    const url =  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
+    const url =  "https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
     //const url = "data/time_series_covid19_confirmed_global.csv";
 
     return d3.csv(url)
