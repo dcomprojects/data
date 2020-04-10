@@ -94,7 +94,7 @@ function buildSw() {
       '**',
     ],
     globIgnores: [
-      'sw.js', '**/d3.js', '**/map.html', '**/learnd3.html', '**/data.html', 'datamodule.js'
+      'sw.js', '**/d3.js', '**/*.html', 'datamodule.js'
     ]
   }).then(resources => {
     console.log(`Injected ${resources.count} resources for precaching, ` +
