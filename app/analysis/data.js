@@ -117,6 +117,12 @@ function load() {
 
             const getRegionCounts = (country) => {
 
+                console.log(`Looking for regions for ${country}`);
+
+                Object.keys(countries).forEach(c => {
+                    console.log(`Country Key ${c}`);
+                });
+
                 ret = [];
                 c = countries[country];
                 Object.keys(c.regions).forEach(region => {

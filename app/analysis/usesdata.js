@@ -1,11 +1,19 @@
-let data = require("./data");
 let d3 = require("d3");
-let bc = require("./barchart");
+let data = require("./data");
 let z = require("./zoomable");
 
 data.load().then(d => {
-    let countryData = d.getCountryCounts();
-    let canadaData = d.getRegionCounts("Canada");
-    d3.select("#all").append(() => z.zoomable(countryData));
-    d3.select("#canada").append(() => z.zoomable(canadaData));
+
+    const context = {
+        onclick: () => {
+            return (c) => {
+                let countryData = d.getRegionCounts(c.name);
+                d3.select("#country").append(() => z.zoomable(countryData, {onclick: () => {}}));
+            };
+        },
+    };
+
+    let allCountries = d.getCountryCounts();
+    let countryData = d.getRegionCounts("Canada");
+    d3.select("#all").append(() => z.zoomable(allCountries, context));
 });

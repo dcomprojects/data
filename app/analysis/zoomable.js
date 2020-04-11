@@ -1,6 +1,6 @@
 let d3 = require("d3");
 
-exports.zoomable = function (data) {
+exports.zoomable = function (data, context) {
 
     const margin = {
         top: 20,
@@ -71,6 +71,7 @@ exports.zoomable = function (data) {
         .attr("y", d => y(d.value))
         .attr("height", d => y(0) - y(d.value))
         .attr("width", x.bandwidth())
+        .on("click", context.onclick())
         .append("svg:title")
         .text(function(d) { return d.value; });
 
