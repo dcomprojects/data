@@ -197,7 +197,7 @@ gulp.task("build", gulp.series(
   buildSw
 ));
 
-gulp.task('buildAndServe2', gulp.series("build", gulp.parallel(
+gulp.task('buildAndServe', gulp.series("build", gulp.parallel(
     watchCss, 
     watchJs, 
     watchAnalysis, 
