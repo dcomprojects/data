@@ -7,13 +7,25 @@ data.load().then(d => {
     const context = {
         onclick: () => {
             return (c) => {
-                let countryData = d.getRegionCounts(c.name);
-                d3.select("#country").append(() => z.zoomable(countryData, {onclick: () => {}}));
+
+                if (d.hasRegionalBreakdown(c.name)) {
+                    let countryData = d.getRegionCounts(c.name);
+                    d3.select("#country").select("svg").remove();
+                    d3.select("#country").append(() => z.zoomable(countryData, {onclick: () => {}}))
+                    .node()
+                    .scrollIntoView();
+                } else {
+                    let countryData = d.getCountrySeries(c.name);
+                    d3.select("#country").select("svg").remove();
+                    d3.select("#country")
+                    .append(() => z.zoomable(countryData, {onclick: () => {}}))
+                    .scrollIntoView();
+                }
+
             };
         },
     };
 
     let allCountries = d.getCountryCounts();
-    let countryData = d.getRegionCounts("Canada");
     d3.select("#all").append(() => z.zoomable(allCountries, context));
 });

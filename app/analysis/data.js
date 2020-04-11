@@ -148,7 +148,14 @@ function load() {
                 getCountryCounts: getCountryCounts,
                 getRegionCounts: getRegionCounts,
                 getRegionSeries: getRegionSeries,
-                getCountrySeries: getCountrySeries
+                getCountrySeries: getCountrySeries,
+                hasRegionalBreakdown: (country) => {
+                    c = countries[country];
+
+                    console.log(`Country ${country} has ${Object.keys(c.regions).length} regions`);
+
+                    return Object.keys(c.regions).length > 1;
+                }
             };
         });
 }
