@@ -12,23 +12,23 @@ exports.zoomable = function (data, context) {
     const height = 500;
     const width = 1000;
 
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.value)]).nice()
+        .range([height - margin.bottom, margin.top]);
+
     const yAxis = g => g
         .attr("transform", `translate(${margin.left},0)`)
         .call(d3.axisLeft(y))
         .call(g => g.select(".domain").remove());
 
-    const xAxis = g => g
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x).tickSizeOuter(0));
-
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.value)]).nice()
-        .range([height - margin.bottom, margin.top]);
-
     const x = d3.scaleBand()
         .domain(data.map(d => d.name))
         .range([margin.left, width - margin.right])
         .padding(0.1);
+
+    const xAxis = g => g
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).tickSizeOuter(0));
 
     function zoom(svg) {
         const extent = [
@@ -54,6 +54,10 @@ exports.zoomable = function (data, context) {
             svg.selectAll(".x-axis").call(xAxis)
                 .selectAll("text")
                 .style("font-size", getFontSize(d3.event.transform.k));
+            svg.selectAll(".myblah") //.call(barLabels)
+                .attr("transform", d => `translate(${margin.left + x(d.name)}, ${y(d.value)})`)
+                .selectAll("text")
+                .style("font-size", getFontSize(d3.event.transform.k));
         }
     }
 
@@ -61,6 +65,58 @@ exports.zoomable = function (data, context) {
         .attr("viewBox", [0, 0, width, height])
         .call(zoom);
 
+    const drawBars = (s) => {
+        s.attr("x", d => x(d.name))
+            .attr("y", d => y(d.value))
+            .attr("height", d => y(0) - y(d.value))
+            .attr("width", x.bandwidth())
+            .on("click", context.onclick())
+            .append("svg:title")
+            .text(function (d) {
+                return d.value;
+            });
+    };
+
+    svg.append("g")
+        .attr("class", "bars")
+        .attr("fill", "steelblue")
+        .selectAll("rect")
+        .data(data)
+        .join("rect")
+        .call(drawBars);
+
+    const barLabels = (g) => {
+        g
+            .style("text-anchor", "middle")
+            .attr("class", "myblah")
+            .attr("transform", d => `translate(${margin.left + x(d.name)}, ${y(d.value)})`)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .text(function (d) {
+                return d.value;
+            });
+    };
+
+    svg.append("g")
+        .style("font-size", "10px")
+        .style("text-anchor", "middle")
+        .selectAll("text")
+        .data(data)
+        .join("g")
+        .call(barLabels); //similar to how the axis are drawn...
+
+    /*
+    .append("rect")
+    .attr("x", d => x(d.name))
+    .attr("y", d => y(d.value))
+    .attr("height", d => y(0) - y(d.value))
+    .attr("width", x.bandwidth())
+    .on("click", context.onclick())
+    .append("svg:title")
+    .text(function(d) { return d.value; });
+    */
+
+    /*
     svg.append("g")
         .attr("class", "bars")
         .attr("fill", "steelblue")
@@ -74,6 +130,7 @@ exports.zoomable = function (data, context) {
         .on("click", context.onclick())
         .append("svg:title")
         .text(function(d) { return d.value; });
+        */
 
     svg.append("g")
         .attr("class", "x-axis")

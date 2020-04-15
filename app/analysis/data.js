@@ -161,3 +161,18 @@ function load() {
 }
 
 exports.load = load;
+
+exports.sortFn = function() {
+    return {
+        byCount: (data) => {
+            return data.sort((a, b) => {
+                return a.value - b.value;
+            });
+        },
+        alphabetically: (data) => {
+            return data.sort((a, b) => {
+                return a.name.localeCompare(b.name);
+            });
+        }
+    };
+};
