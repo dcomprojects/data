@@ -46,6 +46,21 @@ exports.zoomable = function (data, context) {
             return (d3.min([d3.max([5, +k * 6]), 12])) + "px";
         };
 
+        const sizeAndPlaceText = function(n) {
+            console.log(this);
+            let t = d3.select(this);
+            t.style("font-size", x.bandwidth() - 0.1);
+            const len = t.node().getComputedTextLength();
+            const height = y(0) - y(n.value);
+            console.log(`Len: ${len} Height: ${height}`);
+
+            if (+len > +height) {
+                t.attr("x", len);
+            } else {
+                t.attr("x", 0);
+            }
+        };
+
         function zoomed() {
             x.range([margin.left, width - margin.right].map(d => d3.event.transform.applyX(d)));
             svg.selectAll(".bars rect")
@@ -55,7 +70,9 @@ exports.zoomable = function (data, context) {
                 .selectAll("text")
                 .style("font-size", getFontSize(d3.event.transform.k));
             svg.selectAll(".blahblah")
-                .attr("transform", d => `translate(${x(d.name) + (x.bandwidth() / 2.0)}, 0)`);
+                .attr("transform", d => `translate(${x(d.name) + (x.bandwidth() / 2.0)}, 0)`)
+                .selectAll("text").each(sizeAndPlaceText);
+                //.style("font-size", x.bandwidth() - 0.1);
         }
     }
 
