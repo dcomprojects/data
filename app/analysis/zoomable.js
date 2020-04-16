@@ -54,10 +54,8 @@ exports.zoomable = function (data, context) {
             svg.selectAll(".x-axis").call(xAxis)
                 .selectAll("text")
                 .style("font-size", getFontSize(d3.event.transform.k));
-            svg.selectAll(".myblah") //.call(barLabels)
-                .attr("transform", d => `translate(${margin.left + x(d.name)}, ${y(d.value)})`)
-                .selectAll("text")
-                .style("font-size", getFontSize(d3.event.transform.k));
+            svg.selectAll(".blahblah")
+                .attr("transform", d => `translate(${x(d.name) + (x.bandwidth() / 2.0)}, 0)`);
         }
     }
 
@@ -65,8 +63,9 @@ exports.zoomable = function (data, context) {
         .attr("viewBox", [0, 0, width, height])
         .call(zoom);
 
-    const drawBars = (s) => {
-        s.attr("x", d => x(d.name))
+    const drawBars = (g) => {
+            g.append("rect")
+            .attr("x", d => x(d.name))
             .attr("y", d => y(d.value))
             .attr("height", d => y(0) - y(d.value))
             .attr("width", x.bandwidth())
@@ -75,62 +74,26 @@ exports.zoomable = function (data, context) {
             .text(function (d) {
                 return d.value;
             });
+            g.append("g")
+            .attr("transform", d => `translate(0, ${y(d.value)})`)
+            .append("g")
+            .attr("class", "blahblah")
+            .attr("transform", d => `translate(${x(d.name) + (x.bandwidth() / 2.0)}, 0)`)
+            .append("text")
+            .style("fill", "red")
+            .style("font-size", "20px")
+            .style("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .text(d => d.value);
     };
 
     svg.append("g")
         .attr("class", "bars")
         .attr("fill", "steelblue")
-        .selectAll("rect")
-        .data(data)
-        .join("rect")
-        .call(drawBars);
-
-    const barLabels = (g) => {
-        g
-            .style("text-anchor", "middle")
-            .attr("class", "myblah")
-            .attr("transform", d => `translate(${margin.left + x(d.name)}, ${y(d.value)})`)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .text(function (d) {
-                return d.value;
-            });
-    };
-
-    svg.append("g")
-        .style("font-size", "10px")
-        .style("text-anchor", "middle")
-        .selectAll("text")
+        .selectAll("g")
         .data(data)
         .join("g")
-        .call(barLabels); //similar to how the axis are drawn...
-
-    /*
-    .append("rect")
-    .attr("x", d => x(d.name))
-    .attr("y", d => y(d.value))
-    .attr("height", d => y(0) - y(d.value))
-    .attr("width", x.bandwidth())
-    .on("click", context.onclick())
-    .append("svg:title")
-    .text(function(d) { return d.value; });
-    */
-
-    /*
-    svg.append("g")
-        .attr("class", "bars")
-        .attr("fill", "steelblue")
-        .selectAll("rect")
-        .data(data)
-        .join("rect")
-        .attr("x", d => x(d.name))
-        .attr("y", d => y(d.value))
-        .attr("height", d => y(0) - y(d.value))
-        .attr("width", x.bandwidth())
-        .on("click", context.onclick())
-        .append("svg:title")
-        .text(function(d) { return d.value; });
-        */
+        .call(drawBars);
 
     svg.append("g")
         .attr("class", "x-axis")
