@@ -49,15 +49,27 @@ exports.zoomable = function (data, context) {
         const sizeAndPlaceText = function(n) {
             console.log(this);
             let t = d3.select(this);
-            t.style("font-size", x.bandwidth() - 0.1);
+            t.style("font-size", x.bandwidth() - 0.2);
             const len = t.node().getComputedTextLength();
             const height = y(0) - y(n.value);
             console.log(`Len: ${len} Height: ${height}`);
 
+            const dx = t.node().getBBox().height;
+            console.log(`DX ${dx}`);
+            const dx2 = x.bandwidth();
+
+            const zz = Math.min(dx - dx2);
+
             if (+len > +height) {
-                t.attr("x", len);
+                t.attr("transform", `
+                translate(${dx/4})
+                translate(${x(n.name) + dx2/2.0}, ${y(n.value) - (len/2.0)}) 
+                rotate(-90)`);
             } else {
-                t.attr("x", 0);
+                t.attr("transform", `
+                translate(${dx/4})
+                translate(${x(n.name) + dx2/2.0}, ${y(n.value) + (len/2.0)}) 
+                rotate(-90)`);
             }
         };
 
@@ -70,8 +82,7 @@ exports.zoomable = function (data, context) {
                 .selectAll("text")
                 .style("font-size", getFontSize(d3.event.transform.k));
             svg.selectAll(".blahblah")
-                .attr("transform", d => `translate(${x(d.name) + (x.bandwidth() / 2.0)}, 0)`)
-                .selectAll("text").each(sizeAndPlaceText);
+                .each(sizeAndPlaceText);
                 //.style("font-size", x.bandwidth() - 0.1);
         }
     }
@@ -92,15 +103,12 @@ exports.zoomable = function (data, context) {
                 return d.value;
             });
             g.append("g")
-            .attr("transform", d => `translate(0, ${y(d.value)})`)
-            .append("g")
-            .attr("class", "blahblah")
-            .attr("transform", d => `translate(${x(d.name) + (x.bandwidth() / 2.0)}, 0)`)
             .append("text")
+            .attr("class", "blahblah")
             .style("fill", "red")
-            .style("font-size", "20px")
-            .style("text-anchor", "end")
-            .attr("transform", "rotate(-90)")
+            //.style("font-size", "20px")
+            .style("text-anchor", "middle")
+            //.attr("transform", d => `translate(${x(d.name) + (x.bandwidth() / 2.0)}, ${y(d.value)}) rotate(-90)`)
             .text(d => d.value);
     };
 
@@ -125,6 +133,8 @@ exports.zoomable = function (data, context) {
     svg.append("g")
         .attr("class", "y-axis")
         .call(yAxis);
+
+    svg.call(zoom);
 
     return svg.node();
 };
