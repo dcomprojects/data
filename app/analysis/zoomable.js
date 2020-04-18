@@ -35,6 +35,7 @@ exports.zoomable = function (data, context) {
         };
 
     function zz(e, evt) {
+        console.log(evt);
         x.range([margin.left, width - margin.right].map(d => evt.applyX(d)));
         e.selectAll(".bars rect")
             .attr("x", d => x(d.name))
@@ -44,23 +45,31 @@ exports.zoomable = function (data, context) {
             .style("font-size", getFontSize(evt.k));
         e.selectAll(".blahblah")
             .each(sizeAndPlaceText);
-        //.style("font-size", x.bandwidth() - 0.1);
     }
-
-    function zoom(svg) {
 
         const extent = [
             [margin.left, margin.top],
             [width - margin.right, height - margin.top]
         ];
 
+    let zoomb = d3.zoom()
+        .scaleExtent([1, 8])
+        .translateExtent(extent)
+        .extent(extent);
+
+    function zoom(svg) {
+
+        /*
         svg.call(d3.zoom()
             .scaleExtent([1, 8])
             .translateExtent(extent)
             .extent(extent)
             .on("zoom", zoomed));
+        */
+        svg.call(zoomb.on("zoom", zoomed));
 
         function zoomed() {
+            console.log("called");
             x.range([margin.left, width - margin.right].map(d => d3.event.transform.applyX(d)));
             svg.selectAll(".bars rect")
                 .attr("x", d => x(d.name))
@@ -70,20 +79,17 @@ exports.zoomable = function (data, context) {
                 .style("font-size", getFontSize(d3.event.transform.k));
             svg.selectAll(".blahblah")
                 .each(sizeAndPlaceText);
-            //.style("font-size", x.bandwidth() - 0.1);
         }
     }
 
     const sizeAndPlaceText = function (n) {
-        console.log(this);
+        console.log("HUH -2?");
         let t = d3.select(this);
         t.style("font-size", x.bandwidth() - 0.2);
         const len = t.node().getComputedTextLength();
         const height = y(0) - y(n.value);
-        console.log(`Len: ${len} Height: ${height}`);
 
         const dx = t.node().getBBox().height;
-        console.log(`DX ${dx}`);
         const dx2 = x.bandwidth();
 
         const zz = Math.min(dx - dx2);
@@ -107,11 +113,11 @@ exports.zoomable = function (data, context) {
 
     const drawBars = (g) => {
         g.append("rect")
+            .on("click", context.onclick())
             .attr("x", d => x(d.name))
             .attr("y", d => y(d.value))
             .attr("height", d => y(0) - y(d.value))
             .attr("width", x.bandwidth())
-            .on("click", context.onclick())
             .append("svg:title")
             .text(function (d) {
                 return d.value;
@@ -120,10 +126,9 @@ exports.zoomable = function (data, context) {
             .append("text")
             .attr("class", "blahblah")
             .style("fill", "red")
-            //.style("font-size", "20px")
             .style("text-anchor", "middle")
-            //.attr("transform", d => `translate(${x(d.name) + (x.bandwidth() / 2.0)}, ${y(d.value)}) rotate(-90)`)
-            .text(d => d.value);
+            .text(d => d.value)
+            .on("click", context.onclick());
     };
 
     svg.append("g")
@@ -148,7 +153,7 @@ exports.zoomable = function (data, context) {
         .attr("class", "y-axis")
         .call(yAxis);
 
-    zz(svg, d3.zoomIdentity); 
 
     return svg.node();
 };
+
