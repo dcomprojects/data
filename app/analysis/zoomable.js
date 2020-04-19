@@ -153,6 +153,7 @@ exports.zoomable = function (data, context) {
         .attr("class", "y-axis")
         .call(yAxis);
 
+    zoomb.transform(svg, d3.zoomIdentity.scale(2));
 
     return svg.node();
 };

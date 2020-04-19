@@ -2,7 +2,25 @@ let d3 = require("d3");
 let data = require("./data");
 let z = require("./zoomable");
 
-data.load().then(d => {
+const blah = () => {
+    return new Promise(function (resolve, reject) {
+        window.onload = resolve;
+    });
+    /*
+     */
+};
+
+blah().then(() => {
+
+    let body = d3.select("body");
+
+    window.setTimeout(function () {
+        body.classed('is-preload', false);
+    }, 100);
+
+    return data.load();
+
+}).then(d => {
 
     const context = {
         onclick: () => {
@@ -40,3 +58,7 @@ data.load().then(d => {
     allCountries = sorter(allCountries).reverse();
     d3.select("#all").append(() => z.zoomable(allCountries, context));
 });
+
+exports.myFunc = () => {
+    console.log("Hello!");
+};
