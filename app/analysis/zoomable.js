@@ -1,6 +1,8 @@
 let d3 = require("d3");
 
-exports.zoomable = function (data, context) {
+function createZoomable(data, context) {
+
+    data = data.slice(0,25);
 
     const margin = {
         top: 20,
@@ -83,7 +85,6 @@ exports.zoomable = function (data, context) {
     }
 
     const sizeAndPlaceText = function (n) {
-        console.log("HUH -2?");
         let t = d3.select(this);
         t.style("font-size", x.bandwidth() - 0.2);
         const len = t.node().getComputedTextLength();
@@ -93,6 +94,8 @@ exports.zoomable = function (data, context) {
         const dx2 = x.bandwidth();
 
         const zz = Math.min(dx - dx2);
+
+        console.log(`Computed length ${len} calculated height ${height}`);
 
         if (+len > +height) {
             t.attr("transform", `
@@ -109,7 +112,7 @@ exports.zoomable = function (data, context) {
 
     const svg = d3.create("svg")
         .attr("viewBox", [0, 0, width, height])
-        .call(zoom);
+        ;//.call(zoom);
 
     const drawBars = (g) => {
         g.append("rect")
@@ -153,8 +156,29 @@ exports.zoomable = function (data, context) {
         .attr("class", "y-axis")
         .call(yAxis);
 
-    zoomb.transform(svg, d3.zoomIdentity.scale(2));
+    //svg.selectAll(".blahblah").each(sizeAndPlaceText);
 
-    return svg.node();
+    //zoomb.transform(svg, d3.zoomIdentity.scale(2));
+
+    return {
+        svg: svg,
+        sizeAndPlaceText: sizeAndPlaceText
+    };
+    //return svg.node();
+}
+
+exports.appendChart = function(selection, data, context) {
+
+    chart = createZoomable(data, context);
+
+    console.log(selection);
+
+    selection.append(() => chart.svg.node());
+    chart.svg.selectAll(".blahblah").each(chart.sizeAndPlaceText);
+};
+
+exports.zoomable = (data, context) => {
+        chart = createZoomable(data, context);
+        return chart.svg.node();
 };
 

@@ -32,11 +32,16 @@ blah().then(() => {
                 if (d.hasRegionalBreakdown(c.name)) {
                     let countryData = sorter(d.getRegionCounts(c.name)).reverse();
                     d3.select("#country").select("svg").remove();
-                    d3.select("#country").append(() => z.zoomable(countryData, {
-                            onclick: () => {}
-                        }))
-                        .node()
-                        .scrollIntoView();
+
+                    let node = d3.select("#country");
+
+                    z.appendChart(node, countryData, {
+                        onclick: () => {}
+                    });
+
+                    node.scrollIntoView();
+
+
                 } else {
                     let countryData = d.getCountrySeries(c.name);
                     d3.select("#country").select("svg").remove();
@@ -56,7 +61,10 @@ blah().then(() => {
     let sorter = data.sortFn().byCount;
 
     allCountries = sorter(allCountries).reverse();
-    d3.select("#all").append(() => z.zoomable(allCountries, context));
+
+    z.appendChart(d3.select("#all"), allCountries, context);
+
+    //d3.select("#all").append(() => z.zoomable(allCountries, context));
 });
 
 exports.myFunc = () => {
