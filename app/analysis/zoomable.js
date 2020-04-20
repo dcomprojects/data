@@ -86,7 +86,7 @@ function createZoomable(data, context) {
 
     const sizeAndPlaceText = function (n) {
         let t = d3.select(this);
-        t.style("font-size", x.bandwidth() - 0.2);
+        t.style("font-size", x.bandwidth() - 0.5);
         const len = t.node().getComputedTextLength();
         const height = y(0) - y(n.value);
 
@@ -94,8 +94,6 @@ function createZoomable(data, context) {
         const dx2 = x.bandwidth();
 
         const zz = Math.min(dx - dx2);
-
-        console.log(`Computed length ${len} calculated height ${height}`);
 
         if (+len > +height) {
             t.attr("transform", `
@@ -146,7 +144,7 @@ function createZoomable(data, context) {
         .attr("class", "x-axis")
         .call(xAxis)
         .selectAll("text")
-        .style("font-size", "10px")
+        .style("font-size", "15px") //compute this dynamically...
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
@@ -173,8 +171,6 @@ function createZoomable(data, context) {
 exports.appendChart = function(selection, data, context) {
 
     chart = createZoomable(data, context);
-
-    console.log(selection);
 
     selection.append(() => chart.svg.node());
     chart.sizeAndPlaceText2();
