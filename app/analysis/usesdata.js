@@ -2,15 +2,13 @@ let d3 = require("d3");
 let data = require("./data");
 let z = require("./zoomable");
 
-const blah = () => {
+const onload = () => {
     return new Promise(function (resolve, reject) {
         window.onload = resolve;
     });
-    /*
-     */
 };
 
-blah().then(() => {
+onload().then(() => {
 
     let body = d3.select("body");
 
@@ -29,29 +27,22 @@ blah().then(() => {
 
             return (c) => {
 
+                let node = d3.select("#country");
+                d3.select("#country").select("svg").remove();
+
+                let countryData = [];
+                let context = {
+                    onclick: () => {}
+                };
+
                 if (d.hasRegionalBreakdown(c.name)) {
-                    let countryData = sorter(d.getRegionCounts(c.name)).reverse();
-                    d3.select("#country").select("svg").remove();
-
-                    let node = d3.select("#country");
-
-                    z.appendChart(node, countryData, {
-                        onclick: () => {}
-                    });
-
-                    node.scrollIntoView();
-
-
+                    countryData = sorter(d.getRegionCounts(c.name)).reverse();
                 } else {
-                    let countryData = d.getCountrySeries(c.name);
-                    d3.select("#country").select("svg").remove();
-                    d3.select("#country")
-                        .append(() => z.zoomable(countryData, {
-                            onclick: () => {}
-                        }))
-                        .scrollIntoView();
+                    countryData = d.getCountrySeries(c.name);
                 }
 
+                z.appendChart(node, countryData, context); 
+                node.node().scrollIntoView();
             };
         },
     };
@@ -63,10 +54,4 @@ blah().then(() => {
     allCountries = sorter(allCountries).reverse();
 
     z.appendChart(d3.select("#all"), allCountries, context);
-
-    //d3.select("#all").append(() => z.zoomable(allCountries, context));
 });
-
-exports.myFunc = () => {
-    console.log("Hello!");
-};

@@ -156,15 +156,18 @@ function createZoomable(data, context) {
         .attr("class", "y-axis")
         .call(yAxis);
 
-    //svg.selectAll(".blahblah").each(sizeAndPlaceText);
-
-    //zoomb.transform(svg, d3.zoomIdentity.scale(2));
-
-    return {
-        svg: svg,
-        sizeAndPlaceText: sizeAndPlaceText
+    const fn = function() {
+           this.svg.selectAll(".blahblah").each(sizeAndPlaceText); 
     };
-    //return svg.node();
+
+    ret = {
+        svg: svg,
+    };
+
+    ret.sizeAndPlaceText2 = fn.bind(ret); 
+
+    return ret;
+
 }
 
 exports.appendChart = function(selection, data, context) {
@@ -174,11 +177,6 @@ exports.appendChart = function(selection, data, context) {
     console.log(selection);
 
     selection.append(() => chart.svg.node());
-    chart.svg.selectAll(".blahblah").each(chart.sizeAndPlaceText);
-};
-
-exports.zoomable = (data, context) => {
-        chart = createZoomable(data, context);
-        return chart.svg.node();
+    chart.sizeAndPlaceText2();
 };
 
