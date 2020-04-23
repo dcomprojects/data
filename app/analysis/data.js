@@ -100,6 +100,11 @@ function load() {
 
                 });
 
+                Object.assign(country.samples, {
+                    format: "%",
+                    y: "Y label"
+                });
+
                 _data.countries.push({
                     name: c,
                     value: country.count
@@ -142,7 +147,9 @@ function load() {
             const getRegionSeries = () => {
 
             };
-            const getCountrySeries = () => {};
+            const getCountrySeries = (c) => {
+                return countries[c].samples; 
+            };
 
             return {
                 getCountryCounts: getCountryCounts,

@@ -38,7 +38,7 @@ onload().then(() => {
                 if (d.hasRegionalBreakdown(c.name)) {
                     countryData = sorter(d.getRegionCounts(c.name)).reverse();
                 } else {
-                    countryData = d.getCountrySeries(c.name);
+                    countryData = d.getCountrySeries(c.name).slice(-25);
                 }
 
                 z.appendChart(node, countryData, context); 
