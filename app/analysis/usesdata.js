@@ -27,22 +27,28 @@ onload().then(() => {
 
             return (c) => {
 
-                let node = d3.select("#country");
-                d3.select("#country").select("svg").remove();
+                let countryTimeSeries = d3.select("#cts");
+                countryTimeSeries.select("svg").remove();
 
-                let countryData = [];
+                let regionsNode = d3.select("#regions");
+                regionsNode.select("svg").remove();
+
+                let regionTimeSeries = d3.select("#rts");
+                regionTimeSeries.select("svg").remove();
+
                 let context = {
                     onclick: () => {}
                 };
 
                 if (d.hasRegionalBreakdown(c.name)) {
-                    countryData = sorter(d.getRegionCounts(c.name)).reverse();
-                } else {
-                    countryData = d.getCountrySeries(c.name).slice(-25);
+                    let regionData = sorter(d.getRegionCounts(c.name)).reverse();
+                    z.appendChart(regionsNode, regionData, context); 
                 }
 
-                z.appendChart(node, countryData, context); 
-                node.node().scrollIntoView();
+                cts = d.getCountrySeries(c.name).slice(-25);
+                z.appendChart(countryTimeSeries, cts, context); 
+
+                countryTimeSeries.node().scrollIntoView();
             };
         },
     };
