@@ -20,6 +20,8 @@ onload().then(() => {
 
 }).then(d => {
 
+    const all = d3.select("#all");
+
     const context = {
         onclick: () => {
 
@@ -28,9 +30,11 @@ onload().then(() => {
             return (c) => {
 
                 let countryTimeSeries = d3.select("#cts");
+
                 countryTimeSeries.select("svg").remove();
 
                 let regionsNode = d3.select("#regions");
+
                 regionsNode.select("svg").remove();
 
                 let regionTimeSeries = d3.select("#rts");
@@ -42,11 +46,16 @@ onload().then(() => {
 
                 if (d.hasRegionalBreakdown(c.name)) {
                     let regionData = sorter(d.getRegionCounts(c.name)).reverse();
-                    z.appendChart(regionsNode, regionData, context); 
+                    z.appendChart(regionsNode, regionData, context);
                 }
 
+                let countrySeriesContext = {
+                    onclick: () => {},
+                    xAxisFormat: d3.timeFormat("%Y/%m/%d")
+                };
+
                 cts = d.getCountrySeries(c.name).slice(-25);
-                z.appendChart(countryTimeSeries, cts, context); 
+                z.appendChart(countryTimeSeries, cts, countrySeriesContext);
 
                 countryTimeSeries.node().scrollIntoView();
             };
@@ -59,5 +68,6 @@ onload().then(() => {
 
     allCountries = sorter(allCountries).reverse();
 
-    z.appendChart(d3.select("#all"), allCountries, context);
+    z.appendChart(all,
+        allCountries, context);
 });

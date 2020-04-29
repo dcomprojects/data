@@ -1,8 +1,8 @@
 let d3 = require("d3");
 
-function createZoomable(data, context) {
+function createZoomable(dataAll, context) {
 
-    data = data.slice(0,25);
+    const a25 = Array.from(Array(25), (e, i) => i);
 
     const margin = {
         top: 20,
@@ -15,7 +15,7 @@ function createZoomable(data, context) {
     const width = 1000;
 
     const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d.value)]).nice()
+        .domain([0, d3.max(dataAll, d => d.value)]).nice()
         .range([height - margin.bottom, margin.top]);
 
     const yAxis = g => g
@@ -23,87 +23,54 @@ function createZoomable(data, context) {
         .call(d3.axisLeft(y))
         .call(g => g.select(".domain").remove());
 
-    const x = d3.scaleBand()
-        .domain(data.map(d => d.name))
+    const xRef = d3.scaleBand()
+        .domain(a25)
         .range([margin.left, width - margin.right])
         .padding(0.1);
 
+    const newWidth = xRef.step() * Math.max(1, dataAll.length - 0.1 + 0.1 * 2);
+
+    const xFull = d3.scaleBand()
+        .domain(dataAll.map(d => d.name))
+        .range([margin.left, newWidth - margin.right])
+        .padding(0.1);
+
+    let axisBottom = d3.axisBottom(xFull).tickSizeOuter(0);
+    if ('xAxisFormat' in context) {
+        axisBottom = axisBottom.tickFormat(context.xAxisFormat);
+    }
+
     const xAxis = g => g
         .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x).tickSizeOuter(0));
+        .call(axisBottom);
 
         const getFontSize = k => {
             return (d3.min([d3.max([5, +k * 6]), 12])) + "px";
         };
 
-    function zz(e, evt) {
-        console.log(evt);
-        x.range([margin.left, width - margin.right].map(d => evt.applyX(d)));
-        e.selectAll(".bars rect")
-            .attr("x", d => x(d.name))
-            .attr("width", x.bandwidth());
-        e.selectAll(".x-axis").call(xAxis)
-            .selectAll("text")
-            .style("font-size", getFontSize(evt.k));
-        e.selectAll(".blahblah")
-            .each(sizeAndPlaceText);
-    }
-
         const extent = [
             [margin.left, margin.top],
-            [width - margin.right, height - margin.top]
+        [newWidth - margin.right, height - margin.top]
         ];
-
-    let zoomb = d3.zoom()
-        .scaleExtent([1, 8])
-        .translateExtent(extent)
-        .extent(extent);
-
-    function zoom(svg) {
-
-        /*
-        svg.call(d3.zoom()
-            .scaleExtent([1, 8])
-            .translateExtent(extent)
-            .extent(extent)
-            .on("zoom", zoomed));
-        */
-        svg.call(zoomb.on("zoom", zoomed));
-
-        function zoomed() {
-            console.log("called");
-            x.range([margin.left, width - margin.right].map(d => d3.event.transform.applyX(d)));
-            svg.selectAll(".bars rect")
-                .attr("x", d => x(d.name))
-                .attr("width", x.bandwidth());
-            svg.selectAll(".x-axis").call(xAxis)
-                .selectAll("text")
-                .style("font-size", getFontSize(d3.event.transform.k));
-            svg.selectAll(".blahblah")
-                .each(sizeAndPlaceText);
-        }
-    }
 
     const sizeAndPlaceText = function (n) {
         let t = d3.select(this);
-        t.style("font-size", x.bandwidth() - 0.5);
+        t.style("font-size", xFull.bandwidth() - 0.5);
         const len = t.node().getComputedTextLength();
         const height = y(0) - y(n.value);
 
         const dx = t.node().getBBox().height;
-        const dx2 = x.bandwidth();
-
-        const zz = Math.min(dx - dx2);
+        const dx2 = xFull.bandwidth();
 
         if (+len > +height) {
             t.attr("transform", `
                 translate(${dx/4})
-                translate(${x(n.name) + dx2/2.0}, ${y(n.value) - (len/2.0)}) 
+                translate(${xFull(n.name) + dx2/2.0}, ${y(n.value) - (len/2.0)}) 
                 rotate(-90)`);
         } else {
             t.attr("transform", `
                 translate(${dx/4})
-                translate(${x(n.name) + dx2/2.0}, ${y(n.value) + (len/2.0)}) 
+                translate(${xFull(n.name) + dx2/2.0}, ${y(n.value) + (len/2.0)}) 
                 rotate(-90)`);
         }
     };
@@ -115,10 +82,10 @@ function createZoomable(data, context) {
     const drawBars = (g) => {
         g.append("rect")
             .on("click", context.onclick())
-            .attr("x", d => x(d.name))
+            .attr("x", d => xFull(d.name))
             .attr("y", d => y(d.value))
             .attr("height", d => y(0) - y(d.value))
-            .attr("width", x.bandwidth())
+            .attr("width", xFull.bandwidth())
             .append("svg:title")
             .text(function (d) {
                 return d.value;
@@ -136,7 +103,7 @@ function createZoomable(data, context) {
         .attr("class", "bars")
         .attr("fill", "steelblue")
         .selectAll("g")
-        .data(data)
+        .data(dataAll)
         .join("g")
         .call(drawBars);
 
@@ -154,7 +121,7 @@ function createZoomable(data, context) {
         .attr("class", "y-axis")
         .call(yAxis);
 
-    const fn = function() {
+    const fn = function () {
            this.svg.selectAll(".blahblah").each(sizeAndPlaceText); 
     };
 
@@ -168,11 +135,10 @@ function createZoomable(data, context) {
 
 }
 
-exports.appendChart = function(selection, data, context) {
+exports.appendChart = function (selection, data, context) {
 
     chart = createZoomable(data, context);
 
     selection.append(() => chart.svg.node());
     chart.sizeAndPlaceText2();
 };
-
