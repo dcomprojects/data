@@ -17,7 +17,7 @@ function load() {
 
             let data = {};
             let parseTime = d3.timeParse("%m/%d/%y");
-            let startDate = parseTime("2/1/20");
+            let startDate = parseTime("1/1/19");
 
             const countryKey = dataFrame.columns[countryIdx];
             const provinceKey = dataFrame.columns[provinceIdx];

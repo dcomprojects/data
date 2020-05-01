@@ -48,9 +48,14 @@ function createZoomable(dataAll, context) {
             return (d3.min([d3.max([5, +k * 6]), 12])) + "px";
         };
 
-        const extent = [
+        const extentLarge = [
             [margin.left, margin.top],
         [newWidth - margin.right, height - margin.top]
+        ];
+
+        const extentSmall = [
+            [margin.left, margin.top],
+        [width - margin.right, height - margin.top]
         ];
 
     const sizeAndPlaceText = function (n) {
@@ -75,9 +80,32 @@ function createZoomable(dataAll, context) {
         }
     };
 
+    let zoomBehavior = d3.zoom()
+    .scaleExtent([1,1])
+    .translateExtent(extentLarge)
+    .extent(extentSmall);
+
+    const zoom = (svg) => {
+
+        svg.call(zoomBehavior.on("zoom", zoomed));
+
+        function zoomed() {
+            console.log("called");
+            xFull.range([extentLarge[0][0], extentLarge[1][0]].map(d => d3.event.transform.applyX(d)));
+            svg.selectAll(".bars rect")
+                .attr("x", d => xFull(d.name))
+                .attr("width", xFull.bandwidth());
+            svg.selectAll(".x-axis").call(xAxis);
+                //.selectAll("text");
+                //.style("font-size", getFontSize(d3.event.transform.k));
+            svg.selectAll(".blahblah")
+                .each(sizeAndPlaceText);
+        }
+    };
+
     const svg = d3.create("svg")
         .attr("viewBox", [0, 0, width, height])
-        ;//.call(zoom);
+        .call(zoom);
 
     const drawBars = (g) => {
         g.append("rect")
@@ -125,11 +153,19 @@ function createZoomable(dataAll, context) {
            this.svg.selectAll(".blahblah").each(sizeAndPlaceText); 
     };
 
+    const slideRight = function() {
+
+        console.log(this.svg.select(".bars").node().getBBox());
+        this.svg.transition().duration(10000).call(s => zoomBehavior.translateBy(s, -10000, 0));
+        //d3.select(this.svg.node()).transition().duration(750).call(zoom.transform, d3.zoomIdentity.translate(1000, 0));
+    };
+
     ret = {
         svg: svg,
     };
 
     ret.sizeAndPlaceText2 = fn.bind(ret); 
+    ret.slideRight = slideRight.bind(ret);
 
     return ret;
 
@@ -141,4 +177,7 @@ exports.appendChart = function (selection, data, context) {
 
     selection.append(() => chart.svg.node());
     chart.sizeAndPlaceText2();
+
+    return chart;
 };
+

@@ -54,8 +54,9 @@ onload().then(() => {
                     xAxisFormat: d3.timeFormat("%Y/%m/%d")
                 };
 
-                cts = d.getCountrySeries(c.name).slice(-25);
-                z.appendChart(countryTimeSeries, cts, countrySeriesContext);
+                cts = d.getCountrySeries(c.name); //.slice(-25);
+                const chart = z.appendChart(countryTimeSeries, cts, countrySeriesContext);
+                chart.slideRight();
 
                 countryTimeSeries.node().scrollIntoView();
             };
