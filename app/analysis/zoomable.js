@@ -156,7 +156,7 @@ function createZoomable(dataAll, context) {
     const slideRight = function() {
 
         console.log(this.svg.select(".bars").node().getBBox());
-        this.svg.transition().duration(10000).call(s => zoomBehavior.translateBy(s, -10000, 0));
+        this.svg.transition().duration(3000).call(s => zoomBehavior.translateBy(s, -10000, 0));
         //d3.select(this.svg.node()).transition().duration(750).call(zoom.transform, d3.zoomIdentity.translate(1000, 0));
     };
 

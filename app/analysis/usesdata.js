@@ -47,6 +47,7 @@ onload().then(() => {
                 if (d.hasRegionalBreakdown(c.name)) {
                     let regionData = sorter(d.getRegionCounts(c.name)).reverse();
                     z.appendChart(regionsNode, regionData, context);
+                    d3.select("#regions_label").text(`${c.name} Regions`);
                 }
 
                 let countrySeriesContext = {
@@ -57,6 +58,7 @@ onload().then(() => {
                 cts = d.getCountrySeries(c.name); //.slice(-25);
                 const chart = z.appendChart(countryTimeSeries, cts, countrySeriesContext);
                 chart.slideRight();
+                d3.select("#cts_label").text(`${c.name} Time Series`);
 
                 countryTimeSeries.node().scrollIntoView();
             };

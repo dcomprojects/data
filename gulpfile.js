@@ -154,7 +154,7 @@ function watchJs() {
 
 function watchAnalysis() {
   //gulp.watch('app/analysis/*.js', processAnalysis);
-  gulp.watch('app/analysis/*.js', gulp.series(processAnalysis2, processAnalysis3));
+  gulp.watch('app/analysis/*.js', gulp.series(processAnalysis3));
 }
 
 function watchHtml() {
@@ -191,7 +191,6 @@ gulp.task("build", gulp.series(
   clean,
   copy,
   processJs,
-  processAnalysis2,
   processAnalysis3,
   processCss,
   buildSw
