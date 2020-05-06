@@ -18,15 +18,15 @@ const log = require('gulplog');
 
 'use strict';
 
-function processAnalysis2() {
+function processWorking() {
   // set up the browserify instance on a task basis
   var b = browserify({
-    entries: './app/analysis/growthrate.js',
+    entries: './app/scratch/scratch.js',
     debug: true
   });
 
   return b.bundle()
-    .pipe(source('app.js'))
+    .pipe(source('scratch.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
@@ -157,6 +157,11 @@ function watchAnalysis() {
   gulp.watch('app/analysis/*.js', gulp.series(processAnalysis3));
 }
 
+function watchScratch() {
+  //gulp.watch('app/analysis/*.js', processAnalysis);
+  gulp.watch('app/scratch/*.js', gulp.series(processWorking));
+}
+
 function watchHtml() {
   gulp.watch('app/*.html', copyHtml);
 }
@@ -192,6 +197,7 @@ gulp.task("build", gulp.series(
   copy,
   processJs,
   processAnalysis3,
+  processWorking,
   processCss,
   buildSw
 ));
@@ -200,6 +206,7 @@ gulp.task('buildAndServe', gulp.series("build", gulp.parallel(
     watchCss, 
     watchJs, 
     watchAnalysis, 
+    watchScratch, 
     watchHtml, 
     serve)
 ));
