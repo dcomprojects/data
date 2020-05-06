@@ -3,14 +3,6 @@ reg = require("regression");
 
 let data = [];
 
-/*
-    const a = 40.3;
-    const b = -100.21;
-    const c = -6;
-    const d = 1.3;
-*/
-
-
 const fJitter = (x, jitter) => {
 
     const a = 0.5; 
