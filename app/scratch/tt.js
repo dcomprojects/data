@@ -3,6 +3,7 @@ reg = require("regression");
 
 let data = [];
 
+const n = r.normal(0, 10);
 const fJitter = (x, jitter) => {
 
     const a = 0.5; 
@@ -10,15 +11,15 @@ const fJitter = (x, jitter) => {
     const c = 0; 
     const d = 0;
 
-    return f(x, a, b, c, d, jitter);
+    return f(x, a, b, c, d) + jitter();
 };
 
-const f = (x, a, b, c, d, jitter) => {
+const f = (x, a, b, c, d) => {
 
     return (x * x * x * a)
         + (x * x * b)
         + (x * c)
-        + (d) + jitter();
+        + (d);
 
 };
 
@@ -37,13 +38,11 @@ const df2 = (x, a, b) => {
 
 };
 
-let dataDf = [];
 let dataDf2 = [];
 let actual = [];
-let calculated = []
+let calculated = [];
 
 let x = -10.0;
-const n = r.normal(0, 10);
 for (let i = 0; i < 200; i++) {
 
     const datum = [x, fJitter(x, n)];
@@ -54,15 +53,6 @@ for (let i = 0; i < 200; i++) {
 const result = reg.polynomial(data, { order: 4 });
 
 data.forEach(e => {
-
-    const datum = [e[0], df(
-        e[0], 
-        result.equation[1], 
-        result.equation[2], 
-        result.equation[3], 
-        result.equation[4] 
-        )
-    ];
 
     const datum2 = [e[0], df2(
         e[0], 
@@ -82,12 +72,10 @@ data.forEach(e => {
         result.equation[1], 
         result.equation[2], 
         result.equation[3], 
-        result.equation[4], 
-        () => 0
+        result.equation[4] 
         )
     ];
 
-    dataDf.push(datum);
     dataDf2.push(datum2);
     actual.push(datum3);
     calculated.push(datum4);
@@ -97,7 +85,15 @@ console.log(`${result.string}`);
 console.log(`${result.equation}`);
 
 exports.someData = data;
-exports.df = dataDf;
+
+exports.df = (x) => {
+    return df(x, 
+        result.equation[1], 
+        result.equation[2], 
+        result.equation[3], 
+        result.equation[4]);
+}; 
+
 exports.df2 = dataDf2;
 exports.actual = actual;
 exports.calculated = calculated;
