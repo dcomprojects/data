@@ -62,7 +62,7 @@ const buildSvg = (data, df, df2, actual, calculated) => {
         .call(yAxis2);
 
     const lineWidth = d3.scaleLinear()
-    .domain([d3.min(data, d => df(d[0])), d3.max(data, d => df(d[0]))])
+    .domain([d3.min(calculated, d => df(d[0])), d3.max(calculated, d => df(d[0]))])
     .range([1, 10]);
 
     console.log(`
@@ -82,16 +82,15 @@ const buildSvg = (data, df, df2, actual, calculated) => {
     */
 
     let data2 = [];
-    for (let i = 0; i < data.length-1; i++) {
-        data2.push([data[i], data[i+1]]);
+    for (let i = 0; i < calculated.length-1; i++) {
+        data2.push([calculated[i], calculated[i+1]]);
     }
 
-    svg.selectAll("path")
-        .data(data2)
-        .join("path")
+    svg.append("path")
+        .datum(data)
         .attr("fill", "none")
         .attr("stroke", "steelblue")
-        .attr("stroke-width", d => lineWidth(df(d[0][0])))
+        .attr("stroke-width", 0.5)
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("d", line); 
@@ -114,11 +113,13 @@ const buildSvg = (data, df, df2, actual, calculated) => {
         .attr("stroke-linecap", "round")
         .attr("d", line);
 
-    svg.append("path")
-        .datum(calculated)
+    svg.append("g")
+        .selectAll("path")
+        .data(data2)
+        .join("path")
         .attr("fill", "none")
         .attr("stroke", "red")
-        .attr("stroke-width", 1.0)
+        .attr("stroke-width", d => lineWidth(df(d[0][0])))
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("d", line);
