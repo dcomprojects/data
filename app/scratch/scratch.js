@@ -1,7 +1,8 @@
+const r = require("random");
 const d3 = require("d3");
 const tt = require("./tt");
 
-const buildSvg = (data, df, df2, actual, calculated) => {
+const buildSvg = (samples, f, df, df2) => {
 
     const margin = ({
         top: 20,
@@ -12,8 +13,13 @@ const buildSvg = (data, df, df2, actual, calculated) => {
     const height = 500;
     const width = 1000;
 
+    const calculated = [];
+    samples.forEach(e => {
+        calculated.push([e[0], f(e[0])]);
+    });
+
     const x = d3.scaleLinear()
-        .domain([d3.min(data, d => d[0]), d3.max(data, d => d[0])]).nice()
+        .domain([d3.min(samples, d => d[0]), d3.max(samples, d => d[0])]).nice()
         .range([margin.left, width - margin.right]);
 
     const xAxis = g => g
@@ -22,7 +28,7 @@ const buildSvg = (data, df, df2, actual, calculated) => {
 
 
     const y = d3.scaleLinear()
-        .domain([d3.min(data, d => d[1]), d3.max(data, d => d[1])]).nice()
+        .domain([d3.min(samples, d => d[1]), d3.max(samples, d => d[1])]).nice()
         .range([height - margin.bottom, margin.top]);
 
     const yAxis = g => g
@@ -33,7 +39,7 @@ const buildSvg = (data, df, df2, actual, calculated) => {
             .attr("x", 3)
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
-            .text(data.y));
+            .text(samples.y));
 
     const xAxis2 = g => g
         .attr("transform", `translate(0,${y(0)})`)
@@ -70,8 +76,8 @@ const buildSvg = (data, df, df2, actual, calculated) => {
         d3.interpolateSpectral);
 
     console.log(`
-    Line Width: ${df(data[0][0])}
-    Line Width: ${lineWidth(df(data[0][0]))}
+    Line Width: ${df(samples[0][0])}
+    Line Width: ${lineWidth(df(samples[0][0]))}
     `);
 
     function zoom(svg) {
@@ -103,15 +109,15 @@ const buildSvg = (data, df, df2, actual, calculated) => {
         .data(data2)
         .join("path")
         .attr("fill", "none")
-        .attr("stroke", d => colorScale(df2(d[0][0])))
-        .attr("stroke-width", d => lineWidth(df(d[0][0])))
+        .attr("stroke", d => colorScale(df2(d[0][0]))) //color ~ acceleration
+        .attr("stroke-width", d => lineWidth(df(d[0][0]))) //width ~ speed
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("d", line);
 
     svg.append("g")
         .append("path")
-        .datum(data)
+        .datum(samples)
         .attr("fill", "none")
         .attr("stroke", "black")
         .attr("stroke-width", 2.5)
@@ -121,18 +127,55 @@ const buildSvg = (data, df, df2, actual, calculated) => {
 
     svg.append("g")
         .append("path")
-        .datum(actual)
+        .datum(calculated)
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", "red")
         .attr("stroke-width", 1.5)
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
-        .attr("d", line);
+        .attr("d", line); 
+
 
     return svg.node();
 };
 
-console.log(tt.df);
-const node = buildSvg(tt.someData, tt.df, tt.df2, tt.actual, tt.calculated);
+const jitter = r.normal(0, 0.01);
+const fJitter = (x, jitter) => {
+
+    //(x-10)^3
+    const a = 1; 
+    const b = -30; 
+    const c = 300; 
+    const d = -1000;
+
+    return f(x, [a, b, c, d]) + jitter();
+};
+
+const f = (i, coeff) => {
+
+    const c = coeff.slice(-4);
+    const x = i;
+
+    //return Math.cos(x);
+    //return Math.sin(x);
+
+    return (x * x * x * c[0])
+        + (x * x * c[1])
+        + (x * c[2])
+        + (c[3]);
+};
+
+const samples = [];
+
+const start = -20;
+const inc = 40.0/200.0;
+for (let i = 0; i < 200; i++) {
+    const x = start + (i * inc);
+    const y = fJitter(x, jitter);
+    samples.push([x,y]);
+}
+
+const data = tt.getDataApproximation(samples);
+const node = buildSvg(data.samples, data.f, data.df, data.d2f);
 
 d3.select("#main").append(() => node);
