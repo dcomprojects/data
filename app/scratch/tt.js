@@ -6,39 +6,43 @@ let data = [];
 const n = r.normal(0, 10);
 const fJitter = (x, jitter) => {
 
-    const a = 0.5; 
+    const a = 20.1; 
     const b = 0; 
     const c = 0; 
-    const d = 0;
+    const d = 30;
 
-    return f(x, a, b, c, d) + jitter();
+    return f(x, [a, b, c, d]) + jitter();
 };
 
-const f = (x, a, b, c, d) => {
+const f = (x, coeff) => {
 
-    return (x * x * x * a)
-        + (x * x * b)
-        + (x * c)
-        + (d);
+    const c = coeff.slice(-4);
 
-};
-
-const df = (x, a, b, c) => {
-
-    return 3 * x * x * a 
-    + 2 * x * b  
-    + c;
+    return (x * x * x * c[0])
+        + (x * x * c[1])
+        + (x * c[2])
+        + (c[3]);
 
 };
 
-const df2 = (x, a, b) => {
+const df = (x, coeff) => {
 
-    return 6 * x * a 
-    + 2 * b;
+    const c = coeff.slice(-4);
+
+    return 3 * x * x * c[0] 
+    + 2 * x * c[1]  
+    + c[2];
 
 };
 
-let dataDf2 = [];
+const df2 = (x, coeff) => {
+
+    const c = coeff.slice(-4);
+    return 6 * x * c[0] 
+    + 2 * c[1];
+
+};
+
 let actual = [];
 let calculated = [];
 
@@ -54,29 +58,15 @@ const result = reg.polynomial(data, { order: 4 });
 
 data.forEach(e => {
 
-    const datum2 = [e[0], df2(
-        e[0], 
-        result.equation[1], 
-        result.equation[2], 
-        result.equation[3], 
-        result.equation[4] 
-        )
-    ];
-
     const datum3 = [e[0], fJitter(
         e[0], () => 0)
     ];
 
     const datum4 = [e[0], f(
         e[0], 
-        result.equation[1], 
-        result.equation[2], 
-        result.equation[3], 
-        result.equation[4] 
-        )
+        result.equation)
     ];
 
-    dataDf2.push(datum2);
     actual.push(datum3);
     calculated.push(datum4);
 });
@@ -88,12 +78,13 @@ exports.someData = data;
 
 exports.df = (x) => {
     return df(x, 
-        result.equation[1], 
-        result.equation[2], 
-        result.equation[3], 
-        result.equation[4]);
+        result.equation);
 }; 
 
-exports.df2 = dataDf2;
+exports.df2 = (x) => {
+    return df2(x, 
+        result.equation);
+};
+
 exports.actual = actual;
 exports.calculated = calculated;

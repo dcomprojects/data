@@ -63,63 +63,68 @@ const buildSvg = (data, df, df2, actual, calculated) => {
 
     const lineWidth = d3.scaleLinear()
     .domain([d3.min(calculated, d => df(d[0])), d3.max(calculated, d => df(d[0]))])
-    .range([1, 10]);
+    .range([2, 20]);
+
+    const colorScale = d3.scaleSequential(
+        [d3.min(calculated, d => df2(d[0])), d3.max(calculated, d => df2(d[0]))],
+        d3.interpolateSpectral);
 
     console.log(`
     Line Width: ${df(data[0][0])}
     Line Width: ${lineWidth(df(data[0][0]))}
     `);
 
-    /*
-    svg.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", d => lineWidth(d[0]))
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("d", line);
-    */
+    function zoom(svg) {
+        const extent = [
+            [margin.left, margin.top],
+            [width - margin.right, height - margin.top]
+        ];
 
-    let data2 = [];
-    for (let i = 0; i < calculated.length-1; i++) {
-        data2.push([calculated[i], calculated[i+1]]);
+        svg.call(d3.zoom()
+            .scaleExtent([1, 8])
+            .translateExtent(extent)
+            .extent(extent)
+            .on("zoom", zoomed));
+
+        function zoomed() {
+            svg.selectAll("g").attr("transform", d3.event.transform);
+        }
     }
 
-    svg.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 0.5)
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("d", line); 
+    let data2 = [];
+    for (let i = 0; i < calculated.length - 1; i++) {
+        data2.push([calculated[i], calculated[i + 1]]);
+    }
 
-    svg.append("path")
-        .datum(df2)
-        .attr("fill", "none")
-        .attr("stroke", "yellow")
-        .attr("stroke-width", 2.0)
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("d", line);
-
-    svg.append("path")
-        .datum(actual)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 1.5)
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("d", line);
+    svg.call(zoom);
 
     svg.append("g")
         .selectAll("path")
         .data(data2)
         .join("path")
         .attr("fill", "none")
-        .attr("stroke", "red")
+        .attr("stroke", d => colorScale(df2(d[0][0])))
         .attr("stroke-width", d => lineWidth(df(d[0][0])))
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("d", line);
+
+    svg.append("g")
+        .append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "black")
+        .attr("stroke-width", 2.5)
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("d", line); 
+
+    svg.append("g")
+        .append("path")
+        .datum(actual)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("d", line);
