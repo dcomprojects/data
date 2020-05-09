@@ -3,20 +3,40 @@ reg = require("regression");
 
 let data = [];
 
-const n = r.normal(0, 10);
+//const n = r.normal(0, 1);
+const n = () => 0;
+
 const fJitter = (x, jitter) => {
 
-    const a = 20.1; 
-    const b = 0; 
+    //(x-10)^3
+    const a = 1; 
+    const b = -30; 
+    const c = 300; 
+    const d = -1000;
+
+   /*
+   //constant acceleration
+    const a = 0; 
+    const b = 5; 
     const c = 0; 
-    const d = 30;
+    const d = -100;
+    */
+
+    /*
+    //constant velocity 
+    const a = 0;
+    const b = 0;
+    const c = 20;
+    const d = -100;
+    */
 
     return f(x, [a, b, c, d]) + jitter();
 };
 
-const f = (x, coeff) => {
+const f = (i, coeff) => {
 
     const c = coeff.slice(-4);
+    const x = i;
 
     return (x * x * x * c[0])
         + (x * x * c[1])
@@ -25,9 +45,10 @@ const f = (x, coeff) => {
 
 };
 
-const df = (x, coeff) => {
+const df = (i, coeff) => {
 
     const c = coeff.slice(-4);
+    const x = i;
 
     return 3 * x * x * c[0] 
     + 2 * x * c[1]  
@@ -35,9 +56,10 @@ const df = (x, coeff) => {
 
 };
 
-const df2 = (x, coeff) => {
+const df2 = (i, coeff) => {
 
     const c = coeff.slice(-4);
+    const x = i;
     return 6 * x * c[0] 
     + 2 * c[1];
 
@@ -46,7 +68,7 @@ const df2 = (x, coeff) => {
 let actual = [];
 let calculated = [];
 
-let x = -10.0;
+let x = 0.0;
 for (let i = 0; i < 200; i++) {
 
     const datum = [x, fJitter(x, n)];
