@@ -68,12 +68,16 @@ const buildSvg = (samples, f, df, df2) => {
         .call(yAxis2);
 
     const lineWidth = d3.scaleLinear()
-    .domain([d3.min(calculated, d => df(d[0])), d3.max(calculated, d => df(d[0]))])
+    .domain([d3.min(calculated, d => Math.abs(df(d[0]))), d3.max(calculated, d => Math.abs(df(d[0])))])
     .range([2, 20]);
 
-    const colorScale = d3.scaleSequential(
-        [d3.min(calculated, d => df2(d[0])), d3.max(calculated, d => df2(d[0]))],
-        d3.interpolateSpectral);
+    const positiveScale = d3.scaleSequential(
+        [0, d3.max(calculated, d => df2(d[0]))],
+        d3.interpolateGreens);
+
+    const negativeScale = d3.scaleSequential(
+        [0, d3.min(calculated, d => df2(d[0]))],
+        d3.interpolateReds);
 
     console.log(`
     Line Width: ${df(samples[0][0])}
@@ -109,8 +113,16 @@ const buildSvg = (samples, f, df, df2) => {
         .data(data2)
         .join("path")
         .attr("fill", "none")
-        .attr("stroke", d => colorScale(df2(d[0][0]))) //color ~ acceleration
-        .attr("stroke-width", d => lineWidth(df(d[0][0]))) //width ~ speed
+        .attr("stroke", d => {
+            if (df2(d[0][0]) == 0.0) {
+                return "grey";
+            } else if (d[0][0] > 0) {
+                return positiveScale(df2(d[0][0])); //color ~ acceleration
+            } else {
+                return negativeScale(df2(d[0][0])); //color ~ acceleration
+            }
+        })
+        .attr("stroke-width", d => lineWidth(Math.abs(df(d[0][0])))) //width ~ speed
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("d", line);
@@ -120,11 +132,12 @@ const buildSvg = (samples, f, df, df2) => {
         .datum(samples)
         .attr("fill", "none")
         .attr("stroke", "black")
-        .attr("stroke-width", 2.5)
+        .attr("stroke-width", 0.5)
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("d", line); 
 
+        /*
     svg.append("g")
         .append("path")
         .datum(calculated)
@@ -134,6 +147,7 @@ const buildSvg = (samples, f, df, df2) => {
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
         .attr("d", line); 
+        */
 
 
     return svg.node();
@@ -147,6 +161,18 @@ const fJitter = (x, jitter) => {
     const b = -30; 
     const c = 300; 
     const d = -1000;
+    /*
+    const a = 0; 
+    const b = 1; 
+    const c = +40; 
+    const d = 400;
+    */
+   /*
+    const a = 0; 
+    const b = 1; 
+    const c = 0; 
+    const d = 0;
+    */
 
     return f(x, [a, b, c, d]) + jitter();
 };
@@ -167,7 +193,7 @@ const f = (i, coeff) => {
 
 const samples = [];
 
-const start = -20;
+const start = 1;
 const inc = 40.0/200.0;
 for (let i = 0; i < 200; i++) {
     const x = start + (i * inc);
