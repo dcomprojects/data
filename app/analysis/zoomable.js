@@ -181,3 +181,27 @@ exports.appendChart = function (selection, data, context) {
     return chart;
 };
 
+exports.appendChartWithStats = function (selection, data, context) {
+
+    let data2 = [];
+    let sum = 0;
+    data.forEach(e => {
+        sum += e.value;
+        data2.push({
+            name: e.name,
+            value: sum 
+        });
+    });
+
+    data2 = Object.assign(data2, {
+        format: "%",
+        y: "Count"
+    });
+    chart = createZoomable(data2, context);
+
+    selection.append(() => chart.svg.node());
+    chart.sizeAndPlaceText2();
+
+    return chart;
+};
+

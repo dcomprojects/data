@@ -56,7 +56,7 @@ onload().then(() => {
                 };
 
                 cts = d.getCountrySeries(c.name); //.slice(-25);
-                const chart = z.appendChart(countryTimeSeries, cts, countrySeriesContext);
+                const chart = z.appendChartWithStats(countryTimeSeries, cts, countrySeriesContext);
                 chart.slideRight();
                 d3.select("#cts_label").text(`${c.name} Time Series`);
 
