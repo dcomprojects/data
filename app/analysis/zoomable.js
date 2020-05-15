@@ -1,6 +1,55 @@
 let d3 = require("d3");
+let s = require("./stats");
 
-function createZoomable(dataAll, context) {
+function drawStats(svg, data, stats, x, y) {
+
+    const data2 = [];
+    for (let i = 0; i < data.length-1; ++i) {
+        console.log(`
+            ${stats.samples[i][1]}
+            ${stats.f(i)}
+            ${stats.df(i)}
+        `);
+        data2.push([
+            //[data[i].name, stats.df(i)],
+            //[data[i+1].name, stats.df(i+1)]
+            [data[i].name, stats.samples[i][1]],
+            [data[i+1].name, stats.samples[i+1][1]]
+        ]);
+    }
+
+    const line = d3.line()
+        .defined(d => !isNaN(d[1]))
+        .x(d => x(d[0]))
+        .y(d => y(d[1]));
+
+    svg.append("g")
+    .attr("class", "pathgroup")
+    .selectAll("path")
+    .data(data2)
+    .join("path")
+    .attr("fill", "none")
+    .attr("stroke", "black") 
+    /*
+    .attr("stroke", d => {
+        if (stats.df2(d[0][0]) == 0.0) {
+            return "grey";
+        } else if (d[0][0] > 0) {
+            return positiveScale(stats.df2(d[0][0])); //color ~ acceleration
+        } else {
+            return negativeScale(stats.df2(d[0][0])); //color ~ acceleration
+        }
+    })
+    .attr("stroke-width", d => lineWidth(Math.abs(stats.df(d[0][0])))) //width ~ speed
+    */ 
+    .attr("stroke-width", 10) 
+    .attr("stroke-linejoin", "round")
+    .attr("stroke-linecap", "round")
+    .attr("d", line);
+
+}
+
+function createZoomable(dataAll, context, stats) {
 
     const a25 = Array.from(Array(25), (e, i) => i);
 
@@ -44,19 +93,19 @@ function createZoomable(dataAll, context) {
         .attr("transform", `translate(0,${height - margin.bottom})`)
         .call(axisBottom);
 
-        const getFontSize = k => {
-            return (d3.min([d3.max([5, +k * 6]), 12])) + "px";
-        };
+    const getFontSize = k => {
+        return (d3.min([d3.max([5, +k * 6]), 12])) + "px";
+    };
 
-        const extentLarge = [
-            [margin.left, margin.top],
+    const extentLarge = [
+        [margin.left, margin.top],
         [newWidth - margin.right, height - margin.top]
-        ];
+    ];
 
-        const extentSmall = [
-            [margin.left, margin.top],
+    const extentSmall = [
+        [margin.left, margin.top],
         [width - margin.right, height - margin.top]
-        ];
+    ];
 
     const sizeAndPlaceText = function (n) {
         let t = d3.select(this);
@@ -95,6 +144,10 @@ function createZoomable(dataAll, context) {
             svg.selectAll(".bars rect")
                 .attr("x", d => xFull(d.name))
                 .attr("width", xFull.bandwidth());
+
+            svg.selectAll(".pathgroup")
+                .attr("transform", d3.event.transform);
+
             svg.selectAll(".x-axis").call(xAxis);
                 //.selectAll("text");
                 //.style("font-size", getFontSize(d3.event.transform.k));
@@ -134,6 +187,10 @@ function createZoomable(dataAll, context) {
         .data(dataAll)
         .join("g")
         .call(drawBars);
+
+    if (stats !== undefined) {
+        drawStats(svg, dataAll, stats, xFull, y);
+    }
 
     svg.append("g")
         .attr("class", "x-axis")
@@ -183,21 +240,17 @@ exports.appendChart = function (selection, data, context) {
 
 exports.appendChartWithStats = function (selection, data, context) {
 
-    let data2 = [];
+    let cumulative = [];
     let sum = 0;
-    data.forEach(e => {
+    data.forEach((e,i) => {
         sum += e.value;
-        data2.push({
-            name: e.name,
-            value: sum 
-        });
+        cumulative.push([ i, e.value ]);
     });
 
-    data2 = Object.assign(data2, {
-        format: "%",
-        y: "Count"
-    });
-    chart = createZoomable(data2, context);
+    console.log(`${cumulative}`);
+    const stats = s.getDataApproximation(cumulative);
+
+    chart = createZoomable(data, context, stats);
 
     selection.append(() => chart.svg.node());
     chart.sizeAndPlaceText2();
