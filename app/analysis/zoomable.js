@@ -1,20 +1,29 @@
 let d3 = require("d3");
 let s = require("./stats");
 
-function drawStats(svg, data, stats, x, y) {
+function drawStats(svg, data, stats, stats2, idx, x, y) {
+
+    const sobj = stats2[idx].stats.avg;
+    console.log(sobj);
 
     const data2 = [];
     for (let i = 0; i < data.length-1; ++i) {
         console.log(`
-            ${stats.samples[i][1]}
-            ${stats.f(i)}
-            ${stats.df(i)}
+            ${(data[i].name)} ${data[i].value}
+            ${sobj.f(i)}
+            ${sobj.df(i)}
+            ${sobj.d2f(i)}
         `);
         data2.push([
             //[data[i].name, stats.df(i)],
             //[data[i+1].name, stats.df(i+1)]
-            [data[i].name, stats.samples[i][1]],
-            [data[i+1].name, stats.samples[i+1][1]]
+
+            //[data[i].name, stats.samples[i][1]],
+            //[data[i+1].name, stats.samples[i+1][1]]
+
+            [data[i].name, sobj.f(i)],
+            [data[i+1].name, sobj.f(i+1)]
+
         ]);
     }
 
@@ -49,7 +58,7 @@ function drawStats(svg, data, stats, x, y) {
 
 }
 
-function createZoomable(dataAll, context, stats) {
+function createZoomable(dataAll, context, stats, stats2) {
 
     const a25 = Array.from(Array(25), (e, i) => i);
 
@@ -189,7 +198,7 @@ function createZoomable(dataAll, context, stats) {
         .call(drawBars);
 
     if (stats !== undefined) {
-        drawStats(svg, dataAll, stats, xFull, y);
+        drawStats(svg, dataAll, stats, stats2, stats2.length - 1, xFull, y);
     }
 
     svg.append("g")
@@ -247,10 +256,11 @@ exports.appendChartWithStats = function (selection, data, context) {
         cumulative.push([ i, e.value ]);
     });
 
-    console.log(`${cumulative}`);
     const stats = s.getDataApproximation(cumulative);
+    const stats2 = s.getRollingStats(cumulative, 14);
+    console.log(stats2);
 
-    chart = createZoomable(data, context, stats);
+    chart = createZoomable(data, context, stats, stats2);
 
     selection.append(() => chart.svg.node());
     chart.sizeAndPlaceText2();
