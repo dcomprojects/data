@@ -257,9 +257,7 @@ exports.appendChartWithStats = function (selection, data, context) {
         cumulative.push([ i, e.value ]);
     });
 
-    //const stats = s.getDataApproximation(cumulative);
     const stats2 = s.getRollingStats(cumulative, 14);
-    console.log(stats2);
 
     chart = createZoomable(data, context, stats2);
 

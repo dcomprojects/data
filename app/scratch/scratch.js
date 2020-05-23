@@ -201,7 +201,7 @@ for (let i = 0; i < 200; i++) {
     samples.push([x,y]);
 }
 
-const data = tt.getDataApproximation(samples);
+//const data = tt.getDataApproximation(samples);
 const node = buildSvg(data.samples, data.f, data.df, data.d2f);
 
 d3.select("#main").append(() => node);
