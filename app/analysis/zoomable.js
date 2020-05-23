@@ -1,7 +1,7 @@
 let d3 = require("d3");
 let s = require("./stats");
 
-function drawStats(svg, data, stats, stats2, idx, x, y) {
+function drawStats(svg, data, stats2, idx, x, y) {
 
     const sobj = stats2[idx].stats.avg;
     console.log(sobj);
@@ -58,7 +58,7 @@ function drawStats(svg, data, stats, stats2, idx, x, y) {
 
 }
 
-function createZoomable(dataAll, context, stats, stats2) {
+function createZoomable(dataAll, context, stats2) {
 
     const a25 = Array.from(Array(25), (e, i) => i);
 
@@ -167,7 +167,8 @@ function createZoomable(dataAll, context, stats, stats2) {
 
     const svg = d3.create("svg")
         .attr("viewBox", [0, 0, width, height])
-        .call(zoom);
+        .call(zoom)
+        .on("wheel.zoom", null);
 
     const drawBars = (g) => {
         g.append("rect")
@@ -197,8 +198,8 @@ function createZoomable(dataAll, context, stats, stats2) {
         .join("g")
         .call(drawBars);
 
-    if (stats !== undefined) {
-        drawStats(svg, dataAll, stats, stats2, stats2.length - 1, xFull, y);
+    if (stats2 !== undefined) {
+        drawStats(svg, dataAll, stats2, stats2.length - 1, xFull, y);
     }
 
     svg.append("g")
@@ -256,11 +257,11 @@ exports.appendChartWithStats = function (selection, data, context) {
         cumulative.push([ i, e.value ]);
     });
 
-    const stats = s.getDataApproximation(cumulative);
+    //const stats = s.getDataApproximation(cumulative);
     const stats2 = s.getRollingStats(cumulative, 14);
     console.log(stats2);
 
-    chart = createZoomable(data, context, stats, stats2);
+    chart = createZoomable(data, context, stats2);
 
     selection.append(() => chart.svg.node());
     chart.sizeAndPlaceText2();

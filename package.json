@@ -30,9 +30,8 @@
     "gulp-cli": "^2.2.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-terser": "^1.2.0",
+    "ml-regression-polynomial": "^2.1.0",
     "random": "^2.2.0",
-    "regression": "^2.0.1",
-    "simple-statistics": "^7.0.9",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0"
   }

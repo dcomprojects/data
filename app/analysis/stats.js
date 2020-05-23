@@ -1,24 +1,36 @@
-reg = require("regression");
+//reg = require("regression");
+mrp = require("ml-regression-polynomial");
+
 
 function calculateStats(samples, order) {
 
     console.log(`Here: ${samples.length}`);
     console.log(samples);
-    const result = reg.polynomial(samples, {
-        order: order 
+
+    const x = [];
+    const y = [];
+
+    samples.forEach(e => {
+        x.push(e[0]);
+        y.push(e[1]);
     });
+
+    console.log(x);
+    console.log(y);
+    const reg = new mrp(x, y, order);
 
     const obj = {};
 
-    const coeff = result.equation;
+    const coeff = reg.coefficients.reverse();
 
-    console.log(`${result.string}`);
+    console.log(`${reg.toString()}`);
+    console.log(`${coeff}`);
 
     const f = function (x) {
 
         let ret = 0;
         for (let i = 0; i < coeff.length; i++) {
-            let exp = order -i;
+            let exp = order - i;
             ret += Math.pow(x, exp) * coeff[i];
         }
 
@@ -96,12 +108,19 @@ exports.getRollingStats = function(samples, inc) {
         let node =[samples[i][0], sum / buffer.length];
         Object.assign(node, {stats: {}});
         avg.push(node);
-        node.stats['avg'] = calculateStats(avg.slice(-inc), 2);
-        node.stats['actual'] = calculateStats(samples.slice(0, i+1).slice(-inc), 2);
+
+        if (i >= 5) {
+            node.stats['avg'] = calculateStats(avg.slice(-inc), 7);
+            node.stats['actual'] = calculateStats(samples.slice(0, i+1).slice(-inc), 7);
+        }
     }
 
     const n = avg[avg.length - 1].stats;
     console.log(n);
+
+    n.avg.samples.forEach(e => {
+        console.log(`${e[0]}: ${e[1]} ${n.avg.f(e[0])}`);
+    });
 
         console.log(`
                 F: 0: ${n.actual.f(0)}
@@ -167,9 +186,11 @@ exports.getDataApproximation = (samples) => {
 
     const avg14 = getRollingAvg(samples, 14);
 
-    const result = reg.polynomial(avg14, {
-        order: 4
-    });
+    //const result = reg.polynomial(avg14, {
+    //    order: 4
+    //});
+
+    const result = {};
 
     const obj = {};
 
