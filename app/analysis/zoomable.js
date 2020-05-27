@@ -3,17 +3,22 @@ let s = require("./stats");
 
 function drawStats(svg, data, stats2, idx, x, y) {
 
+    //const sobj = stats2[idx].stats.actual;
     const sobj = stats2[idx].stats.avg;
     console.log(sobj);
 
     const data2 = [];
-    for (let i = 0; i < data.length-1; ++i) {
+    for (let i = 0; i < sobj.samples.length-1; ++i) {
+        /*
         console.log(`
             ${(data[i].name)} ${data[i].value}
             ${sobj.f(i)}
             ${sobj.df(i)}
             ${sobj.d2f(i)}
         `);
+        */
+        let ii0 = sobj.samples[i][0];
+        let ii1 = sobj.samples[i+1][0];
         data2.push([
             //[data[i].name, stats.df(i)],
             //[data[i+1].name, stats.df(i+1)]
@@ -21,15 +26,30 @@ function drawStats(svg, data, stats2, idx, x, y) {
             //[data[i].name, stats.samples[i][1]],
             //[data[i+1].name, stats.samples[i+1][1]]
 
-            [data[i].name, sobj.f(i)],
-            [data[i+1].name, sobj.f(i+1)]
+            [ii0, sobj.f(ii0)],
+            [ii1, sobj.f(ii1)]
 
         ]);
     }
 
+    const names = [];
+    for (let i = 0; i < data.length; ++i) {
+        names.push(data[i].name);
+    }
+
+    console.log(data2);
+    console.log(names);
+
+    const lineWidth = d3.scaleLinear()
+        .domain([
+            d3.min(sobj.samples, d => Math.abs(sobj.df(d[0]))), 
+            d3.max(sobj.samples, d => Math.abs(sobj.df(d[0])))
+        ])
+        .range([2, 20]);
+
     const line = d3.line()
         .defined(d => !isNaN(d[1]))
-        .x(d => x(d[0]))
+        .x(d => x(names[d[0]]))
         .y(d => y(d[1]));
 
     svg.append("g")
@@ -49,9 +69,10 @@ function drawStats(svg, data, stats2, idx, x, y) {
             return negativeScale(stats.df2(d[0][0])); //color ~ acceleration
         }
     })
-    .attr("stroke-width", d => lineWidth(Math.abs(stats.df(d[0][0])))) //width ~ speed
     */ 
-    .attr("stroke-width", 10) 
+    .attr("stroke-width", d => lineWidth(Math.abs(sobj.df(d[0][0])))) //width ~ speed
+    //.attr("stroke-width", d => lineWidth(Math.abs(sobj.df(d[0][0])))) //width ~ speed
+    //.attr("stroke-width", 10) 
     .attr("stroke-linejoin", "round")
     .attr("stroke-linecap", "round")
     .attr("d", line);
