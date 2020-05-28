@@ -110,8 +110,8 @@ exports.getRollingStats = function(samples, inc) {
         avg.push(node);
 
         if (i >= 5) {
-            node.stats['avg'] = calculateStats(avg.slice(-inc), 7);
-            node.stats['actual'] = calculateStats(samples.slice(0, i+1).slice(-inc), 7);
+            node.stats['avg'] = calculateStats(avg.slice(-inc), 3);
+            node.stats['actual'] = calculateStats(samples.slice(0, i+1).slice(-inc), 3);
         }
     }
 
@@ -122,14 +122,13 @@ exports.getRollingStats = function(samples, inc) {
         console.log(`${e[0]}: ${e[1]} ${n.avg.f(e[0])}`);
     });
 
-        console.log(`
+    console.log(`
                 F: 0: ${n.actual.f(0)}
                 Avg F: 0: ${n.avg.f(0)}
                 DF: 0: ${n.actual.df(0)}
                 Avg DF: 0: ${n.avg.df(0)}
                 D2F: 0: ${n.actual.d2f(0)}
                 Avg D2F: 0: ${n.avg.d2f(0)}
-
             `);
 
     return avg;
