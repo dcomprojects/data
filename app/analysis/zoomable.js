@@ -87,7 +87,7 @@ function drawStats(svg, data, stats2, idx, x, y) {
 
 function createZoomable(dataAll, context, stats2) {
 
-    const a25 = Array.from(Array(25), (e, i) => i);
+    const a25 = Array.from(Array(10), (e, i) => i);
 
     const margin = {
         top: 20,
@@ -145,7 +145,7 @@ function createZoomable(dataAll, context, stats2) {
 
     const sizeAndPlaceText = function (n) {
         let t = d3.select(this);
-        t.style("font-size", xFull.bandwidth() - 0.5);
+        t.style("font-size", Math.min(40, xFull.bandwidth() - 0.5));
         const len = t.node().getComputedTextLength();
         const height = y(0) - y(n.value);
 
