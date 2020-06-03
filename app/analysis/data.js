@@ -1,4 +1,5 @@
 let d3 = require("d3");
+let stats = require("./stats");
 
 function load() {
 
@@ -147,9 +148,23 @@ function load() {
             const getRegionSeries = () => {
 
             };
+
             const getCountrySeries = (c) => {
                 return countries[c].samples; 
             };
+
+            const getDf = (x) => {
+                return stats.calculateDf(x.samples);
+            };
+
+            _data.countries.forEach(c => {
+                c.dfx = getDf(countries[c.name]);
+            });
+
+            Object.keys(countries).forEach(c => {
+
+            });
+
 
             return {
                 getCountryCounts: getCountryCounts,

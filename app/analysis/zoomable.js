@@ -54,11 +54,11 @@ function drawStats(svg, data, stats2, idx, x, y) {
 
     const positiveScale = d3.scaleSequential(
         [0, d3.max(sobj.samples, d => sobj.d2f(d[0]))],
-        d3.interpolateGreens);
+        d3.interpolateReds);
 
     const negativeScale = d3.scaleSequential(
         [0, d3.min(sobj.samples, d => sobj.d2f(d[0]))],
-        d3.interpolateReds);
+        d3.interpolateGreens);
 
     svg.append("g")
     .attr("class", "pathgroup")
@@ -192,6 +192,38 @@ function createZoomable(dataAll, context, stats2) {
         }
     };
 
+    const dfs = [];
+
+    dataAll.forEach(e => {
+        if ("df" in e) {
+            dfs.push(e.df);
+        }
+    });
+
+    const greenScale = d3.scaleSequential(
+        [0, d3.max(dfs)],
+        d3.interpolateGreens);
+
+    const redScale = d3.scaleSequential(
+        [0, d3.min(dfs)],
+        d3.interpolateReds);
+
+    const getBarColor = (blah) => {
+        console.log(blah);
+
+        if ("df" in blah) {
+            const df = blah.df;
+
+            if (df >= 0.0) {
+                return redScale(df);
+            } else {
+                return greenScale(df);
+            }
+        }
+
+        return "steelblue";
+    };
+
     const svg = d3.create("svg")
         .attr("viewBox", [0, 0, width, height])
         .call(zoom)
@@ -204,6 +236,7 @@ function createZoomable(dataAll, context, stats2) {
             .attr("y", d => y(d.value))
             .attr("height", d => y(0) - y(d.value))
             .attr("width", xFull.bandwidth())
+            .attr("fill", d => getBarColor(d))
             .append("svg:title")
             .text(function (d) {
                 return d.value;
@@ -250,7 +283,7 @@ function createZoomable(dataAll, context, stats2) {
     const slideRight = function() {
 
         console.log(this.svg.select(".bars").node().getBBox());
-        this.svg.transition().duration(3000).call(s => zoomBehavior.translateBy(s, -10000, 0));
+        this.svg.transition().duration(3000).call(s => zoomBehavior.translateBy(s, -15000, 0));
         //d3.select(this.svg.node()).transition().duration(750).call(zoom.transform, d3.zoomIdentity.translate(1000, 0));
     };
 

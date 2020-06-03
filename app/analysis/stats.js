@@ -164,3 +164,8 @@ function getRollingAvg(samples, inc) {
 
     return ret;
 }
+
+exports.calculateDf = function(samples) {
+    console.log(samples);
+    return 0.0;
+};
