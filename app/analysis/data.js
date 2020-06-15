@@ -158,6 +158,7 @@ function load() {
             };
 
             _data.countries.forEach(c => {
+                console.log(`Getting DF for ${c.name}`);
                 c.dfx = getDf(countries[c.name]);
             });
 

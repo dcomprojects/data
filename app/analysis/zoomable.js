@@ -266,7 +266,7 @@ function createZoomable(dataAll, context, stats2) {
         .attr("class", "x-axis")
         .call(xAxis)
         .selectAll("text")
-        .style("font-size", "15px") //compute this dynamically...
+        .style("font-size", "27px") //compute this dynamically...
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")

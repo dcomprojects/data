@@ -159,13 +159,20 @@ function getRollingAvg(samples, inc) {
             sum -= discard;
         }
 
-        ret.push([samples[i][0], sum / buffer.length]);
+        ret.push([samples[i][0], sum / buffer.length, samples[i][1]]);
     }
 
     return ret;
 }
 
 exports.calculateDf = function(samples) {
-    console.log(samples);
-    return 0.0;
+
+    const data = [];
+    samples.forEach((e, i) => {
+        data.push([i, e.value]);
+    });
+
+    const avg = getRollingAvg(data, 3);
+    const s = calculateStats(avg.slice(-30), 10); //only use last n days
+    return s.df(avg[avg.length-1][0]);
 };
